@@ -3,7 +3,6 @@ var casper = require('casper').create({
   logLevel: "warning"
 });
 var system = require('system');
-var utils = require('utils');
 
 var usage = "\nUSAGE: jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] \n"
             +"\tNOTE: if '--imgType=pdf' please set '--pdfHeight=<required height>\n";
@@ -100,7 +99,7 @@ casper.then(function() {
           this.then(function() {
             this.echo('\tCapturing to: ' + output, 'info');
             this.capture(output, { top: 0, left: 0, width: pageWidth, height: height + 150 });
-            });
+          });
         });
       });
     })(current);
