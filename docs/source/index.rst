@@ -46,9 +46,9 @@ Usage is simple, set up the display with relevant tracks in the browser and prov
   --outdir=wibble1 \
   --baseUrl='http://localhost:8999/JBrowse/?data=auto%2F1404&loc=1%3A115102801..115404000&tracks=...'
 
-========   ========  ============      ===================================================
+========   ========  ================  ===================================================
 Argument   Required  Type/Values       Description
-========   ========  ============      ===================================================
+========   ========  ================  ===================================================
 width      Yes       integer           Width in pixels for generated image.
 imgType    Yes       ``pdf|jpeg|pdf``  Type of image to generate.
 height     No        integer           Height in pixels, required for ``--imgType=pdf`` or
@@ -58,7 +58,7 @@ outdir     Yes       path              Prexisting output folder.
 baseUrl    Yes       URL               JBrowse URL to base all snapshots on.
 navOff     No        N/A               Presence causes the navigation panel to be excluded
                                        from image.
-========   ========  ============      ===================================================
+========   ========  ================  ===================================================
 
 Tested track types
 ------------------
@@ -74,7 +74,11 @@ Functionality of the following tracks has been tested:
 
 Known issues
 ------------
-At present doesn't process the `multibigwig <https://github.com/elsiklab/multibigwig>`_ plugin track correctly.  Please report issues with other track types if found.
+At present doesn't process the `multibigwig <https://github.com/elsiklab/multibigwig>`_ plugin track correctly.
+The ``loading`` divs clear when the canvas is added but even with extended timeout (far more than time taken in browser)
+I can't get the multiple layers of the canvas to render, only the scale.
+
+Please report issues with other track types if found.
 
 License
 -------
