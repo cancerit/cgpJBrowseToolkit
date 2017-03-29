@@ -30,8 +30,18 @@ Usage is simple, get the user to set up the display with relevant tracks in the 
 $ casperjs jbrowse_rasterize.js \
 --width=1200 \
 --imgType=png \
---locs=places.bed --outdir=wibble1 \
+--locs=places.bed \
+--outdir=wibble1 \
 --baseUrl='http://localhost:8999/JBrowse/?data=auto%2F1404&loc=1%3A115102801..115404000&tracks=...' \
 ```
 
-I'm sure this can be improved upon ([`waitForResouce()`](http://docs.casperjs.org/en/latest/modules/casper.html#waitforresource) on each track div, instead of a naive [`wait()`](http://docs.casperjs.org/en/latest/modules/casper.html#wait) if you know what to test for) but this is as far as I have time to take it.
+At present doesn't process the [multibigwig](https://github.com/elsiklab/multibigwig) plugin track correctly.  Please report issues with other track types if found.
+
+Functionality of the following tracks has been tested:
+* Alignments2
+* VCF
+* XYplot
+* CanvasFeatures
+* Sequence
+
+All testing carried out under JBrowse 1.12.3 rc1.
