@@ -46,17 +46,19 @@ Usage is simple, set up the display with relevant tracks in the browser and prov
   --outdir=wibble1 \
   --baseUrl='http://localhost:8999/JBrowse/?data=auto%2F1404&loc=1%3A115102801..115404000&tracks=...'
 
-=========   ========  ============  ===============================================================
-Argument    Required  Type/Values   Description
-=========   ========  ============  ===============================================================
-width       Yes       integer       Width in pixels for generated image.
-imgType     Yes       pdf|jpeg|pdf  Type of image to generate.
-pdfHeight   No        integer       Height in pixels, required for ``--imgType=pdf``.
-locs        Yes       *.bed         Bed file of locations to snapshot, not bgzip'ed.
-outdir      Yes       path          Prexisting output folder.
-baseUrl     Yes       URL           JBrowse URL to base all snapshots on.
-navOff      No        N/A           Presence causes the navigation panel to be excluded from image.
-=========   ========  ============  ===============================================================
+========   ========  ============      ===================================================
+Argument   Required  Type/Values       Description
+========   ========  ============      ===================================================
+width      Yes       integer           Width in pixels for generated image.
+imgType    Yes       ``pdf|jpeg|pdf``  Type of image to generate.
+height     No        integer           Height in pixels, required for ``--imgType=pdf`` or
+                                       if generated images may exceed 2000px.
+locs       Yes       ``*.bed``         Bed file of locations to snapshot, not bgzip'ed.
+outdir     Yes       path              Prexisting output folder.
+baseUrl    Yes       URL               JBrowse URL to base all snapshots on.
+navOff     No        N/A               Presence causes the navigation panel to be excluded
+                                       from image.
+========   ========  ============      ===================================================
 
 Tested track types
 ------------------

@@ -7,7 +7,7 @@ var casper = require('casper').create({
 var system = require('system');
 
 var usage = "\nUSAGE: jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] [--navOff]\n"
-            +"\tNOTE: if '--imgType=pdf' please set '--pdfHeight=<required height>\n";
+            +"\tNOTE: if '--imgType=pdf' please set '--height=<required height>\n";
 
 
 if (Object.keys(casper.cli.options).length < 7) {
@@ -33,10 +33,18 @@ var outDir     = casper.cli.get("outdir");
 var navOff     = casper.cli.has("navOff");
 
 var viewPortHeight = 2000;
+var height;
+if(casper.cli.has("height")) {
+  height = casper.cli.get("height");
+  if(height > viewPortHeight) {
+    viewPortHeight = height;
+  }
+}
+
 if(outType === 'pdf') {
-  var pdfHeight  = casper.cli.get("pdfHeight");
+  var pdfHeight  = casper.cli.get("height");
   if(pdfHeight == null) {
-    console.log("\nERROR: Please set '--pdfHeight'\n");
+    console.log("\nERROR: Please set '--height'\n");
     console.log(usage);
     phantom.exit(1);
   }
