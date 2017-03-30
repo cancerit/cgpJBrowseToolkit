@@ -1,3 +1,4 @@
+#!/usr/bin/env casperjs
 var VERSION="1.0.0"
 
 var casper = require('casper').create({
