@@ -15,8 +15,6 @@ if (Object.keys(casper.cli.options).length < 7) {
   phantom.exit(1);
 }
 
-var thisScript = system.args[3];
-
 if(casper.cli.args.length !== 0) {
   console.log("\nERROR: Please check key/value options are of the form '--option=value', '--baseUrl' value will require single quoting");
   console.log(usage);
@@ -131,7 +129,6 @@ casper.then(function() {
               this.echo("Track divs still loading after "+loadTimeout+" second(s) have elapsed, aborting").exit();
           }, loadTimeout*1000);
         });
-        // this calculates the actual height of the track divs, excluding the grid lines layer
       });
     })(current);
   }
