@@ -16,7 +16,6 @@ if (Object.keys(casper.cli.options).length < 7) {
 }
 
 var thisScript = system.args[3];
-var cacheChk = thisScript.replace(/js\/jbrowse_rasterize.js$/, 'scripts/cacheChk.sh');
 
 if(casper.cli.args.length !== 0) {
   console.log("\nERROR: Please check key/value options are of the form '--option=value', '--baseUrl' value will require single quoting");
@@ -85,9 +84,7 @@ for(var i=0; i<rawLocs.length; i++) {
   if(rawLocs[i].length === 0) continue;
   var elements = rawLocs[i].split(/\t/);
   if(elements.length !== 3) continue;
-  locations[locations.length] = { 'chr': elements[0],
-                                  'start': elements[1],
-                                  'end': elements[2] };
+  locations[locations.length] = { 'chr': elements[0], 'start': elements[1], 'end': elements[2] };
 }
 
 var colon = encodeURIComponent(':');
