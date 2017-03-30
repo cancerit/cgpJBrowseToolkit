@@ -29,7 +29,7 @@ Usage
 
 Usage is simple, set up the display with relevant tracks in the browser and provide the updated URL it to the script::
 
-  $ casperjs jbrowse_rasterize.js \
+  $ jbrowse_rasterize.js \
   --width=1200 \
   --imgType=png \
   --locs=places.bed \

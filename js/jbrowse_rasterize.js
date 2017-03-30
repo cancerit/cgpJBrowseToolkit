@@ -14,7 +14,7 @@ if(casper.cli.has("v")) {
   phantom.exit(0)
 }
 
-var usage = "\nUSAGE: casperjs jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] [--navOff]\n"
+var usage = "\nUSAGE: jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] [--navOff]\n"
             +"\tNOTE: if '--imgType=pdf' please set '--height=<required height>\n"
             +"\tVERSION: use '--v' to ger version of script, (--version gives the casperjs version)\n";
 
