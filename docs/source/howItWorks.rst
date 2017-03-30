@@ -7,9 +7,8 @@ generation of a view.  All actions are asynchronous with no single testable vari
 ``jbrowse_rasterize`` attempts to compensate for this by testing several critical elements of the DOM.
 
 1. ``document.readyState === "complete"``
-2. ``document.getElementsByClassName('innerTrackContainer').length === 1``
-3. ``document.getElementsByClassName('innerTrackContainer')[0]\``
+2. ``document.getElementsByClassName('innerTrackContainer')[0]\``
    ``.getElementsByClassName('track').length === trackCount+1``
-4. ``document.getElementsByClassName('loading').length === 0``
+3. ``document.getElementsByClassName('loading').length === 0``
 
-Item **3** needs the ``+1`` to account for the ``grid`` background track.
+Item 2 needs the ``+1`` to account for the grid background track.
