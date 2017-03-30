@@ -25,6 +25,8 @@ The advantages of this over looping on the standard phantomjs rasterize.js are:
 Usage
 *****
 
+*All arguments require* ``--`` *prefix.*
+
 Usage is simple, set up the display with relevant tracks in the browser and provide the updated URL it to the script::
 
   $ casperjs jbrowse_rasterize.js \
@@ -49,6 +51,7 @@ Usage is simple, set up the display with relevant tracks in the browser and prov
    baseUrl      Yes       URL               JBrowse URL to base all snapshots on.
    navOff       No        N/A               Presence causes the navigation panel to be excluded
                                             from image.
+   v            No        N/A               Output version of script and exit when found.
    ==========   ========  ================  ===================================================
 
 .. _http-basic-authentication:
