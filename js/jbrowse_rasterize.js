@@ -1,11 +1,21 @@
+var VERSION="1.0.0"
+
 var casper = require('casper').create({
   verbose: true,
-  logLevel: "warning"
+  logLevel: "warning",
+  retryTimeout: 1200
 });
+//casper.options.retryTimeout=1000;
 var system = require('system');
 
-var usage = "\nUSAGE: jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] \n"
-            +"\tNOTE: if '--imgType=pdf' please set '--pdfHeight=<required height>\n";
+if(casper.cli.has("v")) {
+  console.log(VERSION)
+  phantom.exit(0)
+}
+
+var usage = "\nUSAGE: casperjs jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] [--navOff]\n"
+            +"\tNOTE: if '--imgType=pdf' please set '--height=<required height>\n"
+            +"\tVERSION: use '--v' to ger version of script, (--version gives the casperjs version)\n";
 
 if (Object.keys(casper.cli.options).length < 7) {
   console.log(usage);
@@ -13,7 +23,7 @@ if (Object.keys(casper.cli.options).length < 7) {
 }
 
 if(casper.cli.args.length !== 0) {
-  console.log("\nERROR: Please check that all options are of the form '--option=value', '--baseUrl' will require single quoting");
+  console.log("\nERROR: Please check key/value options are of the form '--option=value', '--baseUrl' value will require single quoting");
   console.log(usage);
   phantom.exit(1);
 }
@@ -24,20 +34,26 @@ var outType    = casper.cli.get("imgType");
 var baseUrl    = casper.cli.get("baseUrl");
 var locs       = casper.cli.get("locs");
 var outDir     = casper.cli.get("outdir");
+var navOff     = casper.cli.has("navOff");
 
 var viewPortHeight = 2000;
+var height;
+if(casper.cli.has("height")) {
+  height = casper.cli.get("height");
+  if(height > viewPortHeight) {
+    viewPortHeight = height;
+  }
+}
+
 if(outType === 'pdf') {
-  var pdfHeight  = casper.cli.get("pdfHeight");
+  var pdfHeight  = casper.cli.get("height");
   if(pdfHeight == null) {
-    console.log("\nERROR: Please set '--pdfHeight'\n");
+    console.log("\nERROR: Please set '--height'\n");
     console.log(usage);
     phantom.exit(1);
   }
   viewPortHeight = pdfHeight;
 }
-
-// remove loc and highlight elements of url
-var address = baseUrl.replace(/loc=[^&]+&/, '').replace('&highlight=', '');
 
 var fs = require('fs');
 var rawLocs = fs.read(locs).split(/\r?\n/)
@@ -45,12 +61,27 @@ var passwd;
 
 if(passwdFile != null) passwd = fs.read(passwdFile).replace(/\r?\n/g, '');
 
+//get track count
+var trackCount = decodeURIComponent(baseUrl).match(/&tracks=([^$]+)/)[0].replace("&tracks=","").split(/,/).length;
+if(trackCount === 0) {
+  console.log("\nERROR: The URL provided has no tracks selected\n");
+  phantom.exit(1);
+}
+
+// Handle standard cleaning of the URL
+var address = baseUrl.replace(/loc=[^&]+/, '').replace(/&tracklist=[01]/, '').replace(/&nav=[01]/, '').replace(/&fullviewlink=[01]/, '').replace('&highlight=', '');
+// turn off track list
+address += '&tracklist=0';
+// turn off fullviewlink
+address += '&fullviewlink=0';
+if(navOff) { // optionally turn of the navigation tools
+  address += '&nav=0';
+}
+// cleanup any multiples of &&
+address = address.replace(/[&]+/g,'&');
+
 // setup page stuff here
 pageWidth = parseInt(width);
-
-// base initial wait time on number of tracks to render (allow loading of indexes etc)
-var pageWait = 1 + (decodeURIComponent(address).match(/,/g) || []).length;
-var initWait = pageWait * 2; // additional time for any index files to stage
 
 // first cleanup the input into json objects
 var locations = [];
@@ -58,22 +89,16 @@ for(var i=0; i<rawLocs.length; i++) {
   if(rawLocs[i].length === 0) continue;
   var elements = rawLocs[i].split(/\t/);
   if(elements.length !== 3) continue;
-  locations[locations.length] = { 'chr': elements[0],
-                                  'start': elements[1],
-                                  'end': elements[2] };
+  locations[locations.length] = { 'chr': elements[0], 'start': elements[1], 'end': elements[2] };
 }
 
 var colon = encodeURIComponent(':');
+var loadTimeout = trackCount * 10; // seconds, converted later
+if(loadTimeout < 30) {loadTimeout = 30;}
 
 casper.start();
 
 if(passwd != null) casper.setHttpAuth(system.env.USER, passwd);
-
-casper.thenOpen(address, function() {
-  this.viewport(pageWidth, viewPortHeight);
-  this.echo('Initialisation of cache... ('+ initWait+' sec.)');
-  this.wait(initWait * 1000);
-})
 
 casper.then(function() {
   for (var current = 0; current < locations.length; current++) {
@@ -81,25 +106,35 @@ casper.then(function() {
       var output = outDir + '/' + locations[cntr].chr + '_' + locations[cntr].start + '-' + locations[cntr].end + '.' + outType;
       var url = address+'&loc=' +locations[cntr].chr + colon + locations[cntr].start + '..' + locations[cntr].end;
       casper.thenOpen(url, function() {
-        casper.echo('Processing url: ' + url);
+        this.echo('Processing url: ' + url);
         this.viewport(pageWidth, viewPortHeight);
-        this.wait(pageWait * 1200);
-        // this calculates the actual height of the track divs, excluding the grid lines layer
         this.then(function() {
-          var height = this.page.evaluate(function() {
-            var heightSum = 0;
-            var trackDivs = document.getElementById("zoomContainer").children[0].children[0].children;
-            for(var i=0, len = trackDivs.length ; i < len; i++) {
-              if(trackDivs[i].id === 'gridtrack') continue;
-              heightSum += trackDivs[i].offsetHeight;
-            }
-            return heightSum;
-          });
-          // here we can download stuff
-          this.then(function() {
-            this.echo('\tCapturing to: ' + output, 'info');
-            this.capture(output, { top: 0, left: 0, width: pageWidth, height: height + 150 });
-          });
+          this.waitFor(function check() {
+            return this.evaluate(function(expTracks) {
+              return document.readyState === "complete"
+                      && document.getElementsByClassName('innerTrackContainer')[0].getElementsByClassName('track').length === expTracks + 1
+                      && document.getElementsByClassName('loading').length === 0;
+            }, trackCount);
+          }, function then() {    // step to execute when check() is ok
+            this.then(function() {
+              var height = this.page.evaluate(function() {
+                var heightSum = 0;
+                var trackDivs = document.getElementById("zoomContainer").children[0].children[0].children;
+                for(var i=0, len = trackDivs.length ; i < len; i++) {
+                  if(trackDivs[i].id === 'gridtrack') continue;
+                  heightSum += trackDivs[i].offsetHeight;
+                }
+                return heightSum;
+              });
+              // here we can download stuff
+              this.then(function() {
+                this.echo('\tCapturing to: ' + output, 'info');
+                this.capture(output, { top: 0, left: 0, width: pageWidth, height: height + 150 });
+              });
+            });
+          }, function timeout() { // step to execute if check has failed
+            this.echo("Track divs still loading after "+loadTimeout+" second(s) have elapsed, aborting").exit();
+          }, loadTimeout*1000);
         });
       });
     })(current);
