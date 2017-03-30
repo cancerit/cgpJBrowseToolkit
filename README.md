@@ -11,7 +11,9 @@ Contains various scripts and tools that work with or on [JBrowse](http://jbrowse
 
 Please see [Read The Docs](http://cgpjbrowsetoolkit.readthedocs.io/en/stable/) for current documentation.
 
-### Developer info
+## Developer info
+
+### Documentation
 Documentation is automatically built on [Read The Docs](https://readthedocs.org/).  To check formatting before committing run:
 
 ```bash
@@ -19,13 +21,17 @@ cd $PROJECT_ROOT/docs
 make html
 ```
 
+Then open/refresh `$PROJECT_ROOT/docs/build/html/index.html` in your browser.
+
+### Javascript Style
 Check the vailidity of the JS files with eslint on your local copy before pushing:
 
 ```bash
 eslint js/jbrowse_rasterize.js
 ```
 
-Then open/refresh `$PROJECT_ROOT/docs/build/html/index.html` in your browser.
+### Version number
+The version is found in ``js/jbrowse_rasterize.js``.
 
 LICENCE
 =======

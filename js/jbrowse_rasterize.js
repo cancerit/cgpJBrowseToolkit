@@ -1,3 +1,5 @@
+var VERSION="1.0.0"
+
 var casper = require('casper').create({
   verbose: true,
   logLevel: "warning",
@@ -6,9 +8,14 @@ var casper = require('casper').create({
 //casper.options.retryTimeout=1000;
 var system = require('system');
 
-var usage = "\nUSAGE: jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] [--navOff]\n"
-            +"\tNOTE: if '--imgType=pdf' please set '--height=<required height>\n";
+if(casper.cli.has("v")) {
+  console.log(VERSION)
+  phantom.exit(0)
+}
 
+var usage = "\nUSAGE: casperjs jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] [--navOff]\n"
+            +"\tNOTE: if '--imgType=pdf' please set '--height=<required height>\n"
+            +"\tVERSION: use '--v' to ger version of script, (--version gives the casperjs version)\n";
 
 if (Object.keys(casper.cli.options).length < 7) {
   console.log(usage);
