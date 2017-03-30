@@ -19,6 +19,12 @@ cd $PROJECT_ROOT/docs
 make html
 ```
 
+Check the vailidity of the JS files with eslint on your local copy before pushing:
+
+```bash
+eslint js/jbrowse_rasterize.js
+```
+
 Then open/refresh `$PROJECT_ROOT/docs/build/html/index.html` in your browser.
 
 LICENCE
