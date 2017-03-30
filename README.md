@@ -1,11 +1,11 @@
 cgpJBrowseToolkit
 =================
 
-[![Build Status](https://travis-ci.org/cancerit/cgpJBrowseToolkit.svg?branch=master)](https://travis-ci.org/cancerit/cgpJBrowseToolkit) : master
+Master: [![Build Status](https://travis-ci.org/cancerit/cgpJBrowseToolkit.svg?branch=master)](https://travis-ci.org/cancerit/cgpJBrowseToolkit)
+ [![Documentation Status](http://readthedocs.org/projects/cgpjbrowsetoolkit/badge/?version=stable)](http://cgpjbrowsetoolkit.readthedocs.io/en/stable/?badge=stable)
 
-[![Build Status](https://travis-ci.org/cancerit/cgpJBrowseToolkit.svg?branch=develop)](https://travis-ci.org/cancerit/cgpJBrowseToolkit) : develop
-
-[![Doc Status](http://cgpjbrowsetoolkit.readthedocs.io/en/latest/?badge=latest)](http://cgpjbrowsetoolkit.readthedocs.io/en/latest/?badge=latest): docs
+Develop: [![Build Status](https://travis-ci.org/cancerit/cgpJBrowseToolkit.svg?branch=develop)](https://travis-ci.org/cancerit/cgpJBrowseToolkit)
+ [![Documentation Status](http://readthedocs.org/projects/cgpjbrowsetoolkit/badge/?version=develop)](http://cgpjbrowsetoolkit.readthedocs.io/en/stable/?badge=develop)
 
 Contains various scripts and tools that work with or on [JBrowse](http://jbrowse.org/) that are publicly useful.
 
