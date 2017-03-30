@@ -51,8 +51,18 @@ if(outType === 'pdf') {
   viewPortHeight = pdfHeight;
 }
 
+var fs = require('fs');
+var rawLocs = fs.read(locs).split(/\r?\n/)
+var passwd;
+
+if(passwdFile != null) passwd = fs.read(passwdFile).replace(/\r?\n/g, '');
+
 //get track count
 var trackCount = decodeURIComponent(baseUrl).match(/&tracks=([^$]+)/)[0].replace("&tracks=","").split(/,/).length;
+if(trackCount === 0) {
+  console.log("\nERROR: The URL provided has no tracks selected\n");
+  phantom.exit(1);
+}
 
 // Handle standard cleaning of the URL
 var address = baseUrl.replace(/loc=[^&]+/, '').replace(/&tracklist=[01]/, '').replace(/&nav=[01]/, '').replace(/&fullviewlink=[01]/, '').replace('&highlight=', '');
@@ -65,12 +75,6 @@ if(navOff) { // optionally turn of the navigation tools
 }
 // cleanup any multiples of &&
 address = address.replace(/[&]+/g,'&');
-
-var fs = require('fs');
-var rawLocs = fs.read(locs).split(/\r?\n/)
-var passwd;
-
-if(passwdFile != null) passwd = fs.read(passwdFile).replace(/\r?\n/g, '');
 
 // setup page stuff here
 pageWidth = parseInt(width);
@@ -87,7 +91,8 @@ for(var i=0; i<rawLocs.length; i++) {
 }
 
 var colon = encodeURIComponent(':');
-var loadTimeout = trackCount * 5; // seconds, converted later
+var loadTimeout = trackCount * 10; // seconds, converted later
+if(loadTimeout < 30) {loadTimeout = 30;}
 
 casper.start();
 
@@ -103,12 +108,11 @@ casper.then(function() {
         this.viewport(pageWidth, viewPortHeight);
         this.then(function() {
           this.waitFor(function check() {
-            return this.evaluate(function() {
+            return this.evaluate(function(expTracks) {
               return document.readyState === "complete"
-                      && document.getElementsByClassName('innerTrackContainer').length === 1
-                      && document.getElementsByClassName('innerTrackContainer')[0].getElementsByClassName('track').length > 1
+                      && document.getElementsByClassName('innerTrackContainer')[0].getElementsByClassName('track').length === expTracks + 1
                       && document.getElementsByClassName('loading').length === 0;
-            });
+            }, trackCount);
           }, function then() {    // step to execute when check() is ok
             this.then(function() {
               var height = this.page.evaluate(function() {
