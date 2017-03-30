@@ -25,9 +25,10 @@ that are considered publicly useful.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Tools
+   :caption: Documents
 
    jbrowse_rasterize
+   installation
    howItWorks
 
 License
