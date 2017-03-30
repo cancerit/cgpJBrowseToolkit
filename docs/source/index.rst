@@ -14,71 +14,21 @@ Welcome to cgpJBrowseToolkit's documentation!
    :target: http://cgpjbrowsetoolkit.readthedocs.io/en/latest/?badge=latest
    :alt: Documentation Status
 
-Contains various scripts and tools that work with or on `JBrowse <http://jbrowse.org/>`_ that are publicly useful.
+*******
+General
+*******
 
-********************
-jbrowse_rasterize.js
-********************
+This project is provides scripts and tools which work with or on [JBrowse](http://jbrowse.org/)
+that are considered publicly useful.
 
-Generate screenshots from your JBrowse instance using the URL and a BED file of locations of interest.
+.. _other-docs:
 
-Requires a working installation of `casperjs <http://casperjs.org/>`_.
+.. toctree::
+   :maxdepth: 2
+   :caption: Tools
 
-The advantages of this over looping on the standard phantomjs rasterize.js are:
-
-* Cache of data is maintained.
-* Also works with sites secured with http_basic:
-
-  * Password in text file - **Set permissions accordingly**.
-  * Sites not requiring auth load silently.
-  * If not provided when required you will see an error like: ``[warning] [phantom] Loading resource failed with status=fail (HTTP 401): ...``.
-
-* Trims images back to correct height (except pdf).
-* Attempts to automatically compensate for track loading times based on requested base URL.
-* Hides tracklist automatically.
-
-Usage is simple, set up the display with relevant tracks in the browser and provide the updated URL it to the script::
-
-  $ casperjs jbrowse_rasterize.js \
-  --width=1200 \
-  --imgType=png \
-  --locs=places.bed \
-  --outdir=wibble1 \
-  --baseUrl='http://localhost:8999/JBrowse/?data=auto%2F1404&loc=1%3A115102801..115404000&tracks=...'
-
-========   ========  ================  ===================================================
-Argument   Required  Type/Values       Description
-========   ========  ================  ===================================================
-width      Yes       integer           Width in pixels for generated image.
-imgType    Yes       ``pdf|jpeg|pdf``  Type of image to generate.
-height     No        integer           Height in pixels, required for ``--imgType=pdf`` or
-                                       if generated images may exceed 2000px.
-locs       Yes       ``*.bed``         Bed file of locations to snapshot, not bgzip'ed.
-outdir     Yes       path              Prexisting output folder.
-baseUrl    Yes       URL               JBrowse URL to base all snapshots on.
-navOff     No        N/A               Presence causes the navigation panel to be excluded
-                                       from image.
-========   ========  ================  ===================================================
-
-Tested track types
-------------------
-All testing carried out under JBrowse 1.12.3 rc1.
-
-Functionality of the following tracks has been tested:
-
-* Alignments2
-* VCF
-* XYplot
-* CanvasFeatures
-* Sequence
-
-Known issues
-------------
-At present doesn't process the `multibigwig <https://github.com/elsiklab/multibigwig>`_ plugin track correctly.
-The ``loading`` divs clear when the canvas is added but even with extended timeout (far more than time taken in browser)
-I can't get the multiple layers of the canvas to render, only the scale.
-
-Please report issues with other track types if found.
+   jbrowse_rasterize
+   howItWorks
 
 License
 -------
