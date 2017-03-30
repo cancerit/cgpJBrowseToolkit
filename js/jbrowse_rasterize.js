@@ -126,7 +126,7 @@ casper.then(function() {
               });
             });
           }, function timeout() { // step to execute if check has failed
-              this.echo("Track divs still loading after "+loadTimeout+" second(s) have elapsed, aborting").exit();
+            this.echo("Track divs still loading after "+loadTimeout+" second(s) have elapsed, aborting").exit();
           }, loadTimeout*1000);
         });
       });
