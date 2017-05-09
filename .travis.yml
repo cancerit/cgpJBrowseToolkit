@@ -11,7 +11,7 @@ node_js:
 
 install:
   - npm install -g eslint
-  - pip install --user sphinx sphinx-autobuild
+  - pip install --user sphinx sphinx-autobuild sphinx_rtd_theme
 
 script:
   - eslint js
