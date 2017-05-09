@@ -84,8 +84,6 @@ Functionality of the following tracks has been tested:
 
 Known issues
 ------------
-At present doesn't process the `multibigwig <https://github.com/elsiklab/multibigwig>`_ plugin track correctly.
-The ``loading`` divs clear when the canvas is added but even with extended timeout (far more than time taken in browser)
-I can't get the multiple layers of the canvas to render, only the scale.
+* `multibigwig <https://github.com/elsiklab/multibigwig>`_ - plugin track will only render with v0.7.0+
 
 Please report any problems with other track types on the `GitHub issue tracker <https://github.com/cancerit/cgpJBrowseToolkit/issues>`_
