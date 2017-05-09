@@ -11,7 +11,7 @@ node_js:
 
 install:
   - npm install -g eslint
-  - pip3 install sphinx sphinx-autobuild
+  - pip install --user sphinx sphinx-autobuild
 
 script:
   - eslint js
