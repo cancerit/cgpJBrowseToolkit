@@ -1,5 +1,5 @@
 #!/usr/bin/env casperjs
-var VERSION="1.1.0"
+var VERSION="1.1.1"
 
 var casper = require('casper').create({
   verbose: true,
@@ -16,7 +16,7 @@ if(casper.cli.has("v")) {
 
 var usage = "\nUSAGE: jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] [--navOff]\n"
             +"\tNOTE: if '--imgType=pdf' please set '--height=<required height>\n"
-            +"\tVERSION: use '--v' to ger version of script, (--version gives the casperjs version)\n";
+            +"\tVERSION: use '--v' to get version of script, (--version gives the casperjs version)\n";
 
 if (Object.keys(casper.cli.options).length < 7) {
   console.log(usage);

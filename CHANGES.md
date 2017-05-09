@@ -1,3 +1,15 @@
+1.1.1
+=====
+* Update RTD entry to indicate multibigwig has been fixed.
+* Add sphinx rtd build to travis-ci.
+* Correct typo in usage.
+
+1.1.0
+=====
+* Makes jbrowse_rasterize.js executable
+* Corrections to build badges
+* Cleaned up RTD pages
+
 1.0.0
 =====
 * Monitors the track divs to confirm track loading/rendering is complete.
