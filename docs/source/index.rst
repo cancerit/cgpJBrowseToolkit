@@ -18,8 +18,10 @@ Welcome to cgpJBrowseToolkit's documentation!
 General
 *******
 
-This project is provides scripts and tools which work with or on [JBrowse](http://jbrowse.org/)
+This project is provides scripts and tools which work with or on `JBrowse <http://jbrowse.org/>`_
 that are considered publicly useful.
+
+Access the code on `GitHub <https://github.com/cancerit/cgpJBrowseToolkit>`_.
 
 .. _other-docs:
 
