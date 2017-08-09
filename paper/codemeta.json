@@ -1,0 +1,23 @@
+{
+  "@context": "https://raw.githubusercontent.com/codemeta/codemeta/0.1-alpha/codemeta.jsonld",
+  "@type": "Code",
+  "author": [
+    {
+      "@id": "0000-0002-5634-1539",
+      "@type": "Person",
+      "email": "keiranmraine@gmail.com",
+      "name": "Keiran Raine",
+      "affiliation": "Cancer, Ageing and Somatic Mutation, Wellcome Trust Sanger Institute, Cambridge, UK"
+    }
+  ],
+  "identifier": "",
+  "codeRepository": "https://github.com/cancerit/cgpJBrowseToolkit",
+  "datePublished": "2017-07-23",
+  "dateModified": "2017-07-23",
+  "dateCreated": "2017-07-23",
+  "description": "Tools and scripts for working with JBrowse",
+  "keywords": "JBrowse, rasterize, visualisation, genome browser",
+  "license": "AGPL-3.0",
+  "title": "cgpJBrowseToolkit",
+  "version": "1.1.1"
+}
