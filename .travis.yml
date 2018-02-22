@@ -9,6 +9,9 @@ language: node_js
 node_js:
  - node
 
+env:
+  - CHROMIUM_FLAGS="--no-sandbox"
+
 install:
   - npm install -g eslint
   - npm install puppeteer commander
