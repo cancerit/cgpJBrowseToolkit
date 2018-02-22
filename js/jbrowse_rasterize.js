@@ -74,7 +74,7 @@ address = address.replace(/[&]+/g,'&');
 
 // make sure we have somewhere to write to:
 mkdirp(program.outdir, function (err) {
-    if (err) console.error(err)
+  if (err) console.error(err)
 });
 
 // menubar 27
