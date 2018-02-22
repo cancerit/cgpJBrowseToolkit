@@ -1,145 +1,206 @@
-#!/usr/bin/env casperjs
-var VERSION="1.1.1"
+#!/usr/bin/env node
 
-var casper = require('casper').create({
-  verbose: true,
-  logLevel: "warning",
-  retryTimeout: 1200
-});
-//casper.options.retryTimeout=1000;
-var system = require('system');
+const puppeteer = require('puppeteer');
+const path = require('path');
+const colon = encodeURIComponent(':');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+const program = require('commander');
 
-if(casper.cli.has("v")) {
-  console.log(VERSION)
-  phantom.exit(0)
-}
+const imageHelp = `
+  Image quality:
+    Best image quality is achieved with:
+      --imgType png --quality 3
+`
+const bedHelp = `
+  --locs bed file:
 
-var usage = "\nUSAGE: jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] [--navOff]\n"
-            +"\tNOTE: if '--imgType=pdf' please set '--height=<required height>\n"
-            +"\tVERSION: use '--v' to get version of script, (--version gives the casperjs version)\n";
+    Can include comment lines to switch the baseUrl used for the next block of
+    coordinates.
 
-if (Object.keys(casper.cli.options).length < 7) {
-  console.log(usage);
-  phantom.exit(1);
-}
+    Any comment line will be processed into a datasource ($DS) name and URL.  Files generated will be
+    output to a subfolder of the specified --output area as $OUTPUT/$DS/$CHR-$START_$END.
 
-if(casper.cli.args.length !== 0) {
-  console.log("\nERROR: Please check key/value options are of the form '--option=value', '--baseUrl' value will require single quoting");
-  console.log(usage);
-  phantom.exit(1);
-}
+    FORMAT:
 
-var passwdFile = casper.cli.get("passwdFile");
-var width      = casper.cli.get("width");
-var outType    = casper.cli.get("imgType");
-var baseUrl    = casper.cli.get("baseUrl");
-var locs       = casper.cli.get("locs");
-var outDir     = casper.cli.get("outdir");
-var navOff     = casper.cli.has("navOff");
+      # DATASET_NAME URL
+      CHR START END
+      # DATASET_NAME2 URL
+      CHR START END
+      ...
+`
 
-var viewPortHeight = 2000;
-var height;
-if(casper.cli.has("height")) {
-  height = casper.cli.get("height");
-  if(height > viewPortHeight) {
-    viewPortHeight = height;
+function urlCleaning(timeout, outdir, url, subdir) {
+  // Handle standard cleaning of the URL
+  let address = url
+    .replace(/loc=[^&]?/, '')
+    .replace(/&tracklist=[^&]?/, '')
+    .replace(/&nav=[^&]?/, '')
+    .replace(/&fullviewlink=[^&]?/, '')
+    .replace(/&highres=[^&]?/, '')
+    .replace(/&highlight=[^&]?/, '');
+
+  // turn off track list and fullview
+  address += '&tracklist=0&fullviewlink=0&highres='+program.quality;
+  if(program.navOff) { // optionally turn of the navigation tools
+    address += '&nav=0';
+  }
+  // cleanup any multiples of &&
+  address = address.replace(/[&]+/g,'&');
+  const tracks = address.match(/tracks=[^&]+/)[0].split(/%2C/g);
+  let outloc;
+  if(subdir != null) {
+    outloc = path.join(program.outdir, subdir);
+  }
+  else {
+    outloc = program.outdir;
+  }
+  return {
+    outloc: outloc,
+    url: address,
+    timeout: (30 + (program.timeout * tracks.length)) * 1000
   }
 }
 
-if(outType === 'pdf') {
-  var pdfHeight  = casper.cli.get("height");
-  if(pdfHeight == null) {
-    console.log("\nERROR: Please set '--height'\n");
-    console.log(usage);
-    phantom.exit(1);
+program
+  .description('Generate images against a JBrowse server')
+  .option('-l, --locs <file>', 'Bed file of locations, see --help')
+  .option('-b, --baseUrl [value]', 'URL from pre configured JBrowse webpage, ommit if provided in BED file')
+  .option('-w, --width [n]', 'Width of image', 600)
+  .option('-i, --imgType [value]', 'Type of image (jpeg|png)', 'png')
+  .option('-o, --outdir [value]', 'Output folder', './')
+  .option('-n, --navOff', 'Remove nav bars', false)
+  .option('    --highlight', 'Highlight region (for short events)', false)
+  .option('-q, --quality [n]', 'Image resolution (1..3)', 3)
+  .option('-p, --passwdFile [file]', 'User password for httpBasic')
+  .option('-t, --timeout [n]', 'For each track allow upto N sec.', 10)
+  .version('0.1.0', '-v, --version')
+  .on('--help', function() {
+    console.log("\n  Additional information:");
+    console.log(imageHelp);
+    console.log(bedHelp);
+  })
+  .parse(process.argv);
+
+if (process.argv.length < 3 || program.args.length > 0) {
+  program.help()
+}
+
+program.width = parseInt(program.width)
+program.timeout = parseInt(program.timeout)
+program.quality = parseInt(program.quality)
+
+let locations = [];
+if(program.baseUrl) {
+  locations.push(urlCleaning(program.timeout, program.outdir, program.baseUrl, null));
+}
+
+// read in the bed locations
+const rawLocs = fs.readFileSync(program.locs, "utf-8").split(/\r?\n/)
+for(let rawLoc of rawLocs) {
+  if(rawLoc.length === 0) continue;
+  if(rawLoc.startsWith('#')) {
+    if(program.baseUrl) {
+      console.error('ERROR: Dataset/URL cannot be defined in BED file when --baseUrl provided');
+      process.exit(1);
+    }
+    rawLoc = rawLoc.replace(/^#\s+/, '');
+    const groups = rawLoc.match(/([^\s]+)\s+(http.+)/);
+    locations.push(urlCleaning(program.timeout, program.outdir, groups[2], groups[1]));
+    continue;
   }
-  viewPortHeight = pdfHeight;
-}
 
-var fs = require('fs');
-var rawLocs = fs.read(locs).split(/\r?\n/)
-var passwd;
-
-if(passwdFile != null) passwd = fs.read(passwdFile).replace(/\r?\n/g, '');
-
-//get track count
-var trackCount = decodeURIComponent(baseUrl).match(/&tracks=([^$]+)/)[0].replace("&tracks=","").split(/,/).length;
-if(trackCount === 0) {
-  console.log("\nERROR: The URL provided has no tracks selected\n");
-  phantom.exit(1);
-}
-
-// Handle standard cleaning of the URL
-var address = baseUrl.replace(/loc=[^&]+/, '').replace(/&tracklist=[01]/, '').replace(/&nav=[01]/, '').replace(/&fullviewlink=[01]/, '').replace('&highlight=', '');
-// turn off track list
-address += '&tracklist=0';
-// turn off fullviewlink
-address += '&fullviewlink=0';
-if(navOff) { // optionally turn of the navigation tools
-  address += '&nav=0';
-}
-// cleanup any multiples of &&
-address = address.replace(/[&]+/g,'&');
-
-// setup page stuff here
-pageWidth = parseInt(width);
-
-// first cleanup the input into json objects
-var locations = [];
-for(var i=0; i<rawLocs.length; i++) {
-  if(rawLocs[i].length === 0) continue;
-  var elements = rawLocs[i].split(/\t/);
+  const elements = rawLoc.split(/\t/);
   if(elements.length !== 3) continue;
-  locations[locations.length] = { 'chr': elements[0], 'start': elements[1], 'end': elements[2] };
+  let start = parseInt(elements[1]);
+  const end = parseInt(elements[2]);
+  if(start >= end) {
+    console.warn('Skipping: bed location malformed: ' + rawLoc);
+    continue;
+  }
+  start += 1;
+  locations.push({
+    urlElement: elements[0] + colon + start + '..' + end,
+    realElement: elements[0] + ':' + start + '..' + end,
+    fileElement: elements[0] + '_' + start + '-' + end
+  });
 }
 
-var colon = encodeURIComponent(':');
-var loadTimeout = trackCount * 10; // seconds, converted later
-if(loadTimeout < 30) {loadTimeout = 30;}
+// load password if needed
+let passwd;
+if(program.passwdFile) passwd = fs.readFileSync(program.passwdFile, "utf-8").replace(/\r?\n/g, '');
 
-casper.start();
+// menubar 27
+// navbox 33
+// overview 22 (surrounds overviewtrack_overview_loc_track)
+// static_track 14
+let minHeight = 96;
+if(program.navOff) minHeight = 26;
 
-if(passwd != null) casper.setHttpAuth(system.env.USER, passwd);
-
-casper.then(function() {
-  for (var current = 0; current < locations.length; current++) {
-    (function(cntr) {
-      var output = outDir + '/' + locations[cntr].chr + '_' + locations[cntr].start + '-' + locations[cntr].end + '.' + outType;
-      var url = address+'&loc=' +locations[cntr].chr + colon + locations[cntr].start + '..' + locations[cntr].end;
-      casper.thenOpen(url, function() {
-        this.echo('Processing url: ' + url);
-        this.viewport(pageWidth, viewPortHeight);
-        this.then(function() {
-          this.waitFor(function check() {
-            return this.evaluate(function(expTracks) {
-              return document.readyState === "complete"
-                      && document.getElementsByClassName('innerTrackContainer')[0].getElementsByClassName('track').length === expTracks + 1
-                      && document.getElementsByClassName('loading').length === 0;
-            }, trackCount);
-          }, function then() {    // step to execute when check() is ok
-            this.then(function() {
-              var height = this.page.evaluate(function() {
-                var heightSum = 0;
-                var trackDivs = document.getElementById("zoomContainer").children[0].children[0].children;
-                for(var i=0, len = trackDivs.length ; i < len; i++) {
-                  if(trackDivs[i].id === 'gridtrack') continue;
-                  heightSum += trackDivs[i].offsetHeight;
-                }
-                return heightSum;
-              });
-              // here we can download stuff
-              this.then(function() {
-                this.echo('\tCapturing to: ' + output, 'info');
-                this.capture(output, { top: 0, left: 0, width: pageWidth, height: height + 150 });
-              });
-            });
-          }, function timeout() { // step to execute if check has failed
-            this.echo("Track divs still loading after "+loadTimeout+" second(s) have elapsed, aborting").exit();
-          }, loadTimeout*1000);
-        });
-      });
-    })(current);
+(async () => {
+  const browser = await puppeteer.launch({ignoreHTTPSErrors: true, headless: true});
+  const page = await browser.newPage();
+  await page.setCacheEnabled(true);
+  if(passwd) {
+    await page.authenticate({username: process.env.USER, password: passwd});
   }
-});
 
-casper.run();
+  let {address, timeout, outloc} = ['', 0, ''];
+
+  for (const loc of locations) {
+    if(loc.url) {
+      address = loc.url;
+      timeout = loc.timeout;
+      outloc = loc.outloc;
+      // make sure we have somewhere to write to:
+      mkdirp(outloc, function (err) {
+        if (err) {
+          console.error(err);
+          process.exit(1);
+        }
+      });
+      continue;
+    }
+    process.stdout.write('Processing: '+loc.realElement);
+    const started = Date.now();
+    // need to reset each time
+    await page.setViewport({width: program.width, height: 2000});
+    let fullAddress = address+'&loc='+loc.urlElement;
+    if(program.highlight) {
+      fullAddress += '&highlight='+loc.urlElement;
+    }
+    const response = await page.goto(
+      fullAddress, {
+        timeout: timeout,
+        waitUntil: ['load', 'domcontentloaded', 'networkidle0']
+      });
+    if(! response.ok()) {
+      console.error("\nERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
+      process.exit(1);
+    }
+
+    let trackHeight = minHeight;
+    const divs = await page.$$('.track');
+    for (const d of divs) {
+      const propId = await d.getProperty('id')
+      const id = await propId.jsonValue();
+      if(id == 'gridtrack' || id == 'overviewtrack_overview_loc_track' || id == 'static_track') {
+        continue;
+      }
+
+      const bb = await d.boundingBox();
+      trackHeight += bb.height;
+    }
+    await page.setViewport({width: program.width, height: trackHeight});
+    let shotOpts = {
+      path: path.join(outloc, loc.fileElement+'.'+program.imgType),
+      fullPage: false
+    }
+    if(program.imgType === 'jpeg' && program.quality === 3) shotOpts['quality'] = 100;
+    await page.screenshot(shotOpts);
+    const took = Date.now() - started;
+    console.log(' ('+took/1000+' sec.)')
+  }
+
+  await browser.close();
+})();
