@@ -10,7 +10,8 @@ node_js:
  - node
 
 install:
-  - npm install -g eslint puppeteer commander
+  - npm install -g eslint
+  - npm install puppeteer commander
   - pip install --user sphinx sphinx-autobuild sphinx_rtd_theme
 
 script:
