@@ -10,7 +10,7 @@ node_js:
  - node
 
 env:
-  - CHROMIUM_FLAGS="--no-sandbox --disable-setuid-sandbox"
+  - CHROME_DEVEL_SANDBOX=$HOME/chrome-sandbox'
 
 install:
   - npm install -g eslint
@@ -18,7 +18,6 @@ install:
   - pip install --user sphinx sphinx-autobuild sphinx_rtd_theme
 
 script:
-  - which chromium
   - js/jbrowse_rasterize.js --locs test/volvox.bed --navOff --baseUrl 'http://jbrowse.org/code/JBrowse-1.12.4/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
   - eslint js
   - cd docs && make html
