@@ -3,8 +3,8 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
 const colon = encodeURIComponent(':');
-var program = require('commander');
-var fs = require('fs');
+let program = require('commander');
+const fs = require('fs');
 
 program
   .arguments('')
@@ -30,37 +30,40 @@ program.height = parseInt(program.height)
 program.timeout = parseInt(program.timeout)
 
 // read in the bed locations
-var rawLocs = fs.readFileSync(program.locs, "utf-8").split(/\r?\n/)
-var locations = [];
-for(var i=0; i<rawLocs.length; i++) {
+const rawLocs = fs.readFileSync(program.locs, "utf-8").split(/\r?\n/)
+let locations = [];
+for(const i=0; i<rawLocs.length; i++) {
   if(rawLocs[i].length === 0) continue;
-  var elements = rawLocs[i].split(/\t/);
+  const elements = rawLocs[i].split(/\t/);
   if(elements.length !== 3) continue;
-  var start = parseInt(elements[1]);
-  var end = parseInt(elements[2]);
+  let start = parseInt(elements[1]);
+  const end = parseInt(elements[2]);
   if(start >= end) {
     console.warn('Skipping: bed location malformed: ' + rawLocs[i]);
     continue;
   }
   start += 1;
-  locations[locations.length] = {urlElement: elements[0] + colon + start + '..' + end,
-                                 realElement: elements[0] + ':' + start + '..' + end,
-                                 fileElement: elements[0] + '_' + start + '-' + end};
+  locations[locations.length] = {
+    urlElement: elements[0] + colon + start + '..' + end,
+    realElement: elements[0] + ':' + start + '..' + end,
+    fileElement: elements[0] + '_' + start + '-' + end
+  };
 }
 
 // load password if needed
-var passwd;
+let passwd;
 if(program.passwdFile) passwd = fs.readFileSync(program.passwdFile, "utf-8").replace(/\r?\n/g, '');
 
 // Handle standard cleaning of the URL
-var address = program.baseUrl.replace(/loc=[^&]?/, '')
-                             .replace(/&tracklist=[^&]?/, '')
-                             .replace(/&nav=[^&]?/, '')
-                             .replace(/&fullviewlink=[^&]?/, '')
-                             .replace(/&highres=[^&]?/, '')
-                             .replace(/&highlight=[^&]?/, '');
+let address = program.baseUrl
+  .replace(/loc=[^&]?/, '')
+  .replace(/&tracklist=[^&]?/, '')
+  .replace(/&nav=[^&]?/, '')
+  .replace(/&fullviewlink=[^&]?/, '')
+  .replace(/&highres=[^&]?/, '')
+  .replace(/&highlight=[^&]?/, '');
 
-var tracks = address.match(/tracks=[^&]+/)[0].split(/%2C/g);
+const tracks = address.match(/tracks=[^&]+/)[0].split(/%2C/g);
 
 // turn off track list and fullview
 address += '&tracklist=0&fullviewlink=0&highres=auto';
@@ -74,7 +77,7 @@ address = address.replace(/[&]+/g,'&');
 // navbox 33
 // overview 22 (surrounds overviewtrack_overview_loc_track)
 // static_track 14
-var minHeight = 96;
+let minHeight = 96;
 if(program.navOff) minHeight = 26;
 
 (async () => {
@@ -86,7 +89,7 @@ if(program.navOff) minHeight = 26;
     await page.authenticate({username: process.env.USER, password: passwd});
   }
 
-  for (let loc of locations) {
+  for (const loc of locations) {
     process.stdout.write('Processing: '+loc.realElement);
     const started = Date.now();
     // need to reset each time
@@ -95,13 +98,13 @@ if(program.navOff) minHeight = 26;
     if(program.highlight) {
       fullAddress += '&highlight='+loc.urlElement;
     }
-    let response = await page.goto(fullAddress, {waitUntil: ['load', 'domcontentloaded', 'networkidle0']});
+    const response = await page.goto(fullAddress, {waitUntil: ['load', 'domcontentloaded', 'networkidle0']});
     if(! response.ok()) {
       console.error("\nERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
     }
 
-    var trackHeight = minHeight;
-    let divs = await page.$$('.track');
+    let trackHeight = minHeight;
+    const divs = await page.$$('.track');
     for (const d of divs) {
       const propId = await d.getProperty('id')
       const id = await propId.jsonValue();
@@ -114,9 +117,9 @@ if(program.navOff) minHeight = 26;
     }
     await page.setViewport({width: program.width, height: trackHeight});
     await page.screenshot({
-                            path: path.join(program.outdir, loc.fileElement+'.'+program.imgType),
-                            fullPage: false,
-                         });
+      path: path.join(program.outdir, loc.fileElement+'.'+program.imgType),
+      fullPage: false,
+    });
     const took = Date.now() - started;
     console.log(' ('+took/1000+' sec.)')
   }
