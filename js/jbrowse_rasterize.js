@@ -32,14 +32,14 @@ program.timeout = parseInt(program.timeout)
 // read in the bed locations
 const rawLocs = fs.readFileSync(program.locs, "utf-8").split(/\r?\n/)
 let locations = [];
-for(const i=0; i<rawLocs.length; i++) {
-  if(rawLocs[i].length === 0) continue;
-  const elements = rawLocs[i].split(/\t/);
+for(const rawLoc of rawLocs) {
+  if(rawLoc.length === 0) continue;
+  const elements = rawLoc.split(/\t/);
   if(elements.length !== 3) continue;
   let start = parseInt(elements[1]);
   const end = parseInt(elements[2]);
   if(start >= end) {
-    console.warn('Skipping: bed location malformed: ' + rawLocs[i]);
+    console.warn('Skipping: bed location malformed: ' + rawLoc);
     continue;
   }
   start += 1;
