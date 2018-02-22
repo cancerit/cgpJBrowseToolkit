@@ -3,9 +3,13 @@ Installation
 
 Requires a working installation of ``node`` with the following npm modules:
 
-* commander
-* puppeteer
-* mkdirp
+* `commander <https://www.npmjs.com/package/commander>`_
+* `puppeteer <https://www.npmjs.com/package/puppeteer>`_
+* `mkdirp <https://www.npmjs.com/package/mkdirp>`_
+
+```
+npm install commander puppeteer mkdirp
+```
 
 Installation of ``jbrowse_rasterize`` can be achieved a number of ways but the
 simplest is::

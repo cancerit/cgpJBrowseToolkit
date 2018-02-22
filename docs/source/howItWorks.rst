@@ -1,10 +1,10 @@
 How jbrowse_rasterize works
 ===========================
 
-``jbrowse_rasterize`` now uses `Puppeteer <https://github.com/GoogleChrome/puppeteer>`_ which allows
+``jbrowse_rasterize`` now uses `Puppeteer <https://www.npmjs.com/package/puppeteer>`_ which allows
 testing for network activity to cease before indicating a page has completed rendering.
 
-There is no longer a guess as to how long it will take for elements to have completed drawing as 
+There is no longer a guess as to how long it will take for elements to have completed drawing as
 
 ************
 Prior to 2.0
