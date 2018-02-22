@@ -10,7 +10,7 @@ node_js:
  - node
 
 env:
-  - CHROMIUM_FLAGS="--no-sandbox"
+  - CHROMIUM_FLAGS="--no-sandbox --disable-setuid-sandbox"
 
 install:
   - npm install -g eslint
