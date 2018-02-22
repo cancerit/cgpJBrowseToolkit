@@ -2,10 +2,12 @@
 
 ## 2.0.0
 
-* Switched to [puppeteer](https://github.com/GoogleChrome/puppeteer)
-* No longer able to support pdf/bmp
-* Added ability to extend timeout
+* Switched to [puppeteer](https://github.com/GoogleChrome/puppeteer).
+* Only support png/jpeg.
+* Utilise 'highres' option of JBrowse via `--quality` param.
+* Added ability to extend timeout.
 * Added `--highlight` option.
+* baseUrl can be defined inline within locs bed file to change during execution.
 
 ## 1.1.1
 
