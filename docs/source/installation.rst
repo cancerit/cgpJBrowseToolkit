@@ -1,6 +1,12 @@
 Installation
 ============
 
+Requires a working installation of ``node`` with the following npm modules:
+
+* commander
+* puppeteer
+* mkdirp
+
 Installation of ``jbrowse_rasterize`` can be achieved a number of ways but the
 simplest is::
 

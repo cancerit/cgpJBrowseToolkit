@@ -3,15 +3,15 @@
 const puppeteer = require('puppeteer');
 const path = require('path');
 const colon = encodeURIComponent(':');
-let program = require('commander');
 const fs = require('fs');
+const mkdirp = require('mkdirp');
+const program = require('commander');
 
 program
   .arguments('')
   .option('-b, --baseUrl <value>', 'URL from pre configured JBrowse webpage')
   .option('-l, --locs <value>', 'Bed file of locations')
   .option('-w, --width [n]', 'Width of image', 600)
-  .option('    --height [n]', 'Height of image', 400)
   .option('-i, --imgType [value]', 'Type of image (jpeg|png)', 'png')
   .option('-o, --outdir [value]', 'Output folder', './')
   .option('-n, --navOff', 'Remove nav bars', false)
@@ -26,7 +26,6 @@ if (process.argv.length < 3 || program.args.length > 0) {
 }
 
 program.width = parseInt(program.width)
-program.height = parseInt(program.height)
 program.timeout = parseInt(program.timeout)
 
 // read in the bed locations
@@ -73,6 +72,11 @@ if(program.navOff) { // optionally turn of the navigation tools
 // cleanup any multiples of &&
 address = address.replace(/[&]+/g,'&');
 
+// make sure we have somewhere to write to:
+mkdirp(program.outdir, function (err) {
+    if (err) console.error(err)
+});
+
 // menubar 27
 // navbox 33
 // overview 22 (surrounds overviewtrack_overview_loc_track)
@@ -93,7 +97,7 @@ if(program.navOff) minHeight = 26;
     process.stdout.write('Processing: '+loc.realElement);
     const started = Date.now();
     // need to reset each time
-    await page.setViewport({width: program.width, height: program.height});
+    await page.setViewport({width: program.width, height: 2000});
     fullAddress = address+'&loc='+loc.urlElement;
     if(program.highlight) {
       fullAddress += '&highlight='+loc.urlElement;
@@ -101,6 +105,7 @@ if(program.navOff) minHeight = 26;
     const response = await page.goto(fullAddress, {waitUntil: ['load', 'domcontentloaded', 'networkidle0']});
     if(! response.ok()) {
       console.error("\nERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
+      process.exit(1);
     }
 
     let trackHeight = minHeight;
