@@ -21,9 +21,9 @@ before_script:
   - sleep 3
 
 script:
-  - js/jbrowse_rasterize.js --locs test/volvox.bed --navOff --baseUrl 'http://localhost:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
+  - js/jbrowse_rasterize.js --locs test/volvox.bed --navOff --baseUrl 'http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
   - ls -l ctgA_17174-23150.png
-  - js/jbrowse_rasterize.js --imgType jpeg --locs test/volvox.bed --navOff --baseUrl 'http://localhost:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
+  - js/jbrowse_rasterize.js --imgType jpeg --locs test/volvox.bed --navOff --baseUrl 'http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
   - ls -l ctgA_17174-23150.jpeg
   - js/jbrowse_rasterize.js --locs test/volvox_urlEmbedded.bed --navOff
   - ls -l EmbeddedUrl/ctgA_17174-23150.png

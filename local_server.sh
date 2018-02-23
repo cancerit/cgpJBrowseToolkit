@@ -10,5 +10,3 @@ if [ ! -d jbrowse ]; then
   ./jb_setup.js
   cd ..
 fi
-cd jbrowse
-http-server -p 8080 -s .

@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env node --throw-deprecation
 
 const puppeteer = require('puppeteer');
 const path = require('path');
