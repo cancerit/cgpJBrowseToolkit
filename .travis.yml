@@ -10,14 +10,13 @@ node_js:
  - node
 
 install:
-  - npm install -g eslint http-server
+  - npm install -g eslint
   - npm install puppeteer commander
   - pip install --user sphinx sphinx-autobuild sphinx_rtd_theme
 
 before_script:
   - "sudo chown root /opt/google/chrome/chrome-sandbox"
   - "sudo chmod 4755 /opt/google/chrome/chrome-sandbox"
-  - ./local_server.sh
 
 script:
   - test/run_tests.sh

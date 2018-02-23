@@ -1,21 +1,28 @@
 #!/bin/bash
 
+function killserver {
+  ps -f | grep -F 'jb_run.js -p 8080' | grep -v grep | awk '{print $2;}' | xargs kill
+}
+
 function ehandle {
   R=$1
   if [ $R -ne 0 ]; then
     echo "ERRORS occurred: $R"
-    ps -fu $USER | grep -F 'http-server' | grep -v grep | awk '{print $2;}' | xargs kill
+    killserver
     exit $R
   fi
 }
 
 SCRIPT_PATH=`dirname $0`;
 SCRIPT_PATH=`(cd $SCRIPT_PATH && pwd)`
-cd $SCRIPT_PATH/../jbrowse
-http-server -p 8080 -s . &
-cd $SCRIPT_PATH/..
 
-EXIT_SUM=0
+cd $SCRIPT_PATH
+./local_server.sh
+
+cd $SCRIPT_PATH/../jbrowse
+nohup ./jb_run.js -p 8080 &
+sleep 3
+cd $SCRIPT_PATH/..
 
 node --throw-deprecation js/jbrowse_rasterize.js --locs test/volvox.bed --navOff --baseUrl 'http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
 ehandle $?
@@ -46,4 +53,6 @@ ehandle $?
 ls -l compact/EmbeddedUrl/ctgA_17174-23150.png
 ehandle $?
 
-ps -fu $USER | grep -F 'http-server' | grep -v grep | awk '{print $2;}' | xargs kill
+killserver
+
+exit 0
