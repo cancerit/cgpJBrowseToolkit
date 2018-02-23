@@ -19,8 +19,8 @@ SCRIPT_PATH=`(cd $SCRIPT_PATH && pwd)`
 cd $SCRIPT_PATH
 ./local_server.sh
 
-cd $SCRIPT_PATH/../jbrowse
-nohup ./jb_run.js -p 8080 &
+cd $SCRIPT_PATH/jbrowse
+./jb_run.js -p 8080 &
 sleep 3
 cd $SCRIPT_PATH/..
 
