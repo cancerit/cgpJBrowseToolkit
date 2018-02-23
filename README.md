@@ -6,13 +6,21 @@
 
 Contains various scripts and tools that work with or on [JBrowse][jbrowse] that are publicly useful.
 
-Please see [Read The Docs][cjtkrtd] for current documentation.
+Please see [Read The Docs][cjtkrtd] for current documentation and user installation instructions.
 
-## Developer info
+## Additional developer details
 
 ### Documentation
 
-Documentation is automatically built on [Read The Docs][rtd].  To check formatting before committing run:
+Documentation is automatically built on [Read The Docs][rtd].
+
+To check formatting before committing you need to install:
+
+```bash
+pip install --user sphinx sphinx-autobuild sphinx_rtd_theme
+```
+
+And then to validate:
 
 ```bash
 cd $PROJECT_ROOT/docs
@@ -23,7 +31,13 @@ Then open/refresh `$PROJECT_ROOT/docs/build/html/index.html` in your browser.
 
 ### Javascript Style
 
-Check the vailidity of the JS files with eslint on your local copy before pushing:
+To check the vailidity of the JS files with eslint on your local copy install:
+
+```bash
+npm install eslint
+```
+
+And run:
 
 ```bash
 eslint js/jbrowse_rasterize.js
