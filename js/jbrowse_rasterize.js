@@ -229,6 +229,7 @@ function main() {
             t.track.redraw();
           }, t, program.dMode);
         }
+        await page.waitFor(500); // allow time for redraw
       }
 
       let trackHeight = minHeight;
