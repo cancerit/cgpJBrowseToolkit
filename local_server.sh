@@ -11,4 +11,4 @@ if [ ! -d jbrowse ]; then
   cd ..
 fi
 cd jbrowse
-http-server .
+http-server -p 8080 -s .
