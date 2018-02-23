@@ -67,6 +67,8 @@ function urlCleaning(options, url, subdir) {
   }
 }
 
+
+
 program
   .description('Generate images against a JBrowse server')
   .option('-l, --locs <file>', 'Bed file of locations, see --help')
@@ -75,6 +77,7 @@ program
   .option('-i, --imgType [value]', 'Type of image [jpeg|pdf|png]', 'png')
   .option('-o, --outdir [value]', 'Output folder', './')
   .option('-n, --navOff', 'Remove nav bars', false)
+  .option('-d, --dMode [value]', 'Change default display of alignment tracks [normal|compact|collapsed]', '')
   .option('    --highlight', 'Highlight region (for short events)', false)
   .option('-q, --quality [n]', 'Image resolution [1,2,3]', 3)
   .option('-z, --zoom [n]', 'Zoom factor', 1)
@@ -182,6 +185,17 @@ if(program.navOff) minHeight = 26;
     if(! response.ok()) {
       console.error("\nERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
       process.exit(1);
+    }
+
+    if(program.dMode !== '') {
+      const tracks = await page.$$('.track_jbrowse_view_track_alignments2');
+      for (let t of tracks) {
+        await page.evaluate((t, mode) => {
+          t.track.displayMode = mode;
+          t.track.layout = null;
+          t.track.redraw();
+        }, t, program.dMode);
+      }
     }
 
     let trackHeight = minHeight;
