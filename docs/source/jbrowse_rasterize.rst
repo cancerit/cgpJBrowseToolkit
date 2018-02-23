@@ -32,11 +32,11 @@ See command line help for most current options::
     -l, --locs <file>        Bed file of locations, see --help
     -b, --baseUrl [value]    URL from pre configured JBrowse webpage, ommit if provided in BED file
     -w, --width [n]          Width of image (default: 600)
-    -i, --imgType [value]    Type of image (jpeg|png) (default: png)
+    -i, --imgType [value]    Type of image [jpeg|pdf|png] (default: png)
     -o, --outdir [value]     Output folder (default: ./)
     -n, --navOff             Remove nav bars
         --highlight          Highlight region (for short events)
-    -q, --quality [n]        Image resolution (1..3) (default: 3)
+    -q, --quality [n]        Image resolution [1,2,3] (default: 3)
     -p, --passwdFile [file]  User password for httpBasic
     -t, --timeout [n]        For each track allow upto N sec. (default: 10)
     -v, --version            output the version number
@@ -71,7 +71,7 @@ Usage is simple, set up the display with relevant tracks in the browser and prov
   --width 1200 \
   --imgType png \
   --locs test/volvox.bed \
-  --outdir wibble1 \
+  --outdir somewhere \
   --baseUrl 'http://jbrowse.org/code/JBrowse-1.12.4/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
 
 .. table:: Command line args
@@ -82,7 +82,7 @@ Usage is simple, set up the display with relevant tracks in the browser and prov
    locs         Yes       ``*.bed``         Bed file of locations to snapshot, not bgzip'ed.
    baseUrl      No *      URL               JBrowse URL to base all snapshots on, unless defined in bed file.
    width        Yes       integer           Width in pixels for generated image.
-   imgType      Yes       ``pdf|jpeg``      Type of image to generate.
+   imgType      Yes       ``jpeg|pdf|png``  Type of image to generate.
    outdir       Yes       path              Output folder.
    navOff       No        N/A               Presence causes the navigation panel to be excluded.
    highlight    No        N/A               Highlights the targeted range, for use with short
