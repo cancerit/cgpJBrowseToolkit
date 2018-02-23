@@ -27,5 +27,7 @@ script:
   - ls -l EmbeddedUrl/ctgA_17174-23150.png
   - js/jbrowse_rasterize.js --locs test/volvox_urlEmbedded.bed --navOff --imgType pdf
   - ls -l EmbeddedUrl/ctgA_17174-23150.pdf
+  - js/jbrowse_rasterize.js --locs test/volvox_urlEmbedded.bed --navOff --imgType pdf --zoom 2 --outdir z2
+  - ls -l z2/EmbeddedUrl/ctgA_17174-23150.pdf 
   - eslint js
   - cd docs && make html
