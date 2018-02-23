@@ -9,8 +9,7 @@ const program = require('commander');
 
 const imageHelp = `
   Image quality:
-    Best image quality is achieved with:
-      --imgType png --quality 3
+    Best image quality is achieved with pdf, but ~5x larger than png.
 `
 const bedHelp = `
   --locs bed file:
@@ -30,7 +29,7 @@ const bedHelp = `
       ...
 `
 
-function urlCleaning(timeout, outdir, url, subdir) {
+function urlCleaning(options, url, subdir) {
   // Handle standard cleaning of the URL
   let address = url
     .replace(/loc=[^&]?/, '')
@@ -41,24 +40,27 @@ function urlCleaning(timeout, outdir, url, subdir) {
     .replace(/&highlight=[^&]?/, '');
 
   // turn off track list and fullview
-  address += '&tracklist=0&fullviewlink=0&highres='+program.quality;
-  if(program.navOff) { // optionally turn of the navigation tools
+  address += '&tracklist=0&fullviewlink=0&highres='+options.quality;
+  if(options.navOff) { // optionally turn of the navigation tools
     address += '&nav=0';
+  }
+  if(options.highlight) {
+    fullAddress += '&highlight='+loc.urlElement;
   }
   // cleanup any multiples of &&
   address = address.replace(/[&]+/g,'&');
   const tracks = address.match(/tracks=[^&]+/)[0].split(/%2C/g);
   let outloc;
   if(subdir != null) {
-    outloc = path.join(program.outdir, subdir);
+    outloc = path.join(options.outdir, subdir);
   }
   else {
-    outloc = program.outdir;
+    outloc = options.outdir;
   }
   return {
     outloc: outloc,
     url: address,
-    timeout: (30 + (program.timeout * tracks.length)) * 1000
+    timeout: (30 + (options.timeout * tracks.length)) * 1000
   }
 }
 
@@ -67,11 +69,11 @@ program
   .option('-l, --locs <file>', 'Bed file of locations, see --help')
   .option('-b, --baseUrl [value]', 'URL from pre configured JBrowse webpage, ommit if provided in BED file')
   .option('-w, --width [n]', 'Width of image', 600)
-  .option('-i, --imgType [value]', 'Type of image (jpeg|png)', 'png')
+  .option('-i, --imgType [value]', 'Type of image [jpeg|pdf|png]', 'png')
   .option('-o, --outdir [value]', 'Output folder', './')
   .option('-n, --navOff', 'Remove nav bars', false)
   .option('    --highlight', 'Highlight region (for short events)', false)
-  .option('-q, --quality [n]', 'Image resolution (1..3)', 3)
+  .option('-q, --quality [n]', 'Image resolution [1,2,3]', 3)
   .option('-p, --passwdFile [file]', 'User password for httpBasic')
   .option('-t, --timeout [n]', 'For each track allow upto N sec.', 10)
   .version('0.1.0', '-v, --version')
@@ -92,7 +94,7 @@ program.quality = parseInt(program.quality)
 
 let locations = [];
 if(program.baseUrl) {
-  locations.push(urlCleaning(program.timeout, program.outdir, program.baseUrl, null));
+  locations.push(urlCleaning(program, program.baseUrl, null));
 }
 
 // read in the bed locations
@@ -106,7 +108,7 @@ for(let rawLoc of rawLocs) {
     }
     rawLoc = rawLoc.replace(/^#\s+/, '');
     const groups = rawLoc.match(/([^\s]+)\s+(http.+)/);
-    locations.push(urlCleaning(program.timeout, program.outdir, groups[2], groups[1]));
+    locations.push(urlCleaning(program, groups[2], groups[1]));
     continue;
   }
 
@@ -161,19 +163,17 @@ if(program.navOff) minHeight = 26;
       });
       continue;
     }
-    process.stdout.write('Processing: '+loc.realElement);
+    let fullAddress = address+'&loc='+loc.urlElement;
+    process.stdout.write('Processing: '+fullAddress);
     const started = Date.now();
     // need to reset each time
     await page.setViewport({width: program.width, height: 2000});
-    let fullAddress = address+'&loc='+loc.urlElement;
-    if(program.highlight) {
-      fullAddress += '&highlight='+loc.urlElement;
-    }
     const response = await page.goto(
       fullAddress, {
         timeout: timeout,
         waitUntil: ['load', 'domcontentloaded', 'networkidle0']
-      });
+      }
+    );
     if(! response.ok()) {
       console.error("\nERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
       process.exit(1);
@@ -192,12 +192,18 @@ if(program.navOff) minHeight = 26;
       trackHeight += bb.height;
     }
     await page.setViewport({width: program.width, height: trackHeight});
-    let shotOpts = {
-      path: path.join(outloc, loc.fileElement+'.'+program.imgType),
-      fullPage: false
+    const finalPath = path.join(outloc, loc.fileElement+'.'+program.imgType);
+    if(program.imgType === 'pdf') {
+      await page.pdf({path: finalPath, width: program.width, height: trackHeight})
     }
-    if(program.imgType === 'jpeg' && program.quality === 3) shotOpts['quality'] = 100;
-    await page.screenshot(shotOpts);
+    else {
+      let shotOpts = {
+        path: finalPath,
+        fullPage: false
+      }
+      if(program.imgType === 'jpeg' && program.quality === 3) shotOpts['quality'] = 100;
+      await page.screenshot(shotOpts);
+    }
     const took = Date.now() - started;
     console.log(' ('+took/1000+' sec.)')
   }

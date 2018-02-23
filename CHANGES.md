@@ -3,7 +3,8 @@
 ## 2.0.0
 
 * Switched to [puppeteer](https://github.com/GoogleChrome/puppeteer).
-* Only support png/jpeg.
+* Drop bmp support.
+* Height param no longer needed.
 * Utilise 'highres' option of JBrowse via `--quality` param.
 * Added ability to extend timeout.
 * Added `--highlight` option.
