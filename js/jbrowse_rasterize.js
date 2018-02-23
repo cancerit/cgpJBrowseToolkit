@@ -10,6 +10,9 @@ const program = require('commander');
 const imageHelp = `
   Image quality:
     Best image quality is achieved with pdf, but ~5x larger than png.
+
+  Zoom:
+    To alow capturing same region in a wider image as JBrowse has a minimum width per base.
 `
 const bedHelp = `
   --locs bed file:
@@ -74,6 +77,7 @@ program
   .option('-n, --navOff', 'Remove nav bars', false)
   .option('    --highlight', 'Highlight region (for short events)', false)
   .option('-q, --quality [n]', 'Image resolution [1,2,3]', 3)
+  .option('-z, --zoom [n]', 'Zoom factor', 1)
   .option('-p, --passwdFile [file]', 'User password for httpBasic')
   .option('-t, --timeout [n]', 'For each track allow upto N sec.', 10)
   .version('0.1.0', '-v, --version')
@@ -91,6 +95,7 @@ if (process.argv.length < 3 || program.args.length > 0) {
 program.width = parseInt(program.width)
 program.timeout = parseInt(program.timeout)
 program.quality = parseInt(program.quality)
+program.zoom = parseFloat(program.zoom)
 
 let locations = [];
 if(program.baseUrl) {
@@ -191,10 +196,10 @@ if(program.navOff) minHeight = 26;
       const bb = await d.boundingBox();
       trackHeight += bb.height;
     }
-    await page.setViewport({width: program.width, height: trackHeight});
+    await page.setViewport({width: program.width, height: trackHeight, deviceScaleFactor: program.zoom});
     const finalPath = path.join(outloc, loc.fileElement+'.'+program.imgType);
     if(program.imgType === 'pdf') {
-      await page.pdf({path: finalPath, width: program.width, height: trackHeight})
+      await page.pdf({path: finalPath, scale: program.zoom, width: parseInt(program.width * program.zoom), height: parseInt(trackHeight * program.zoom)})
     }
     else {
       let shotOpts = {

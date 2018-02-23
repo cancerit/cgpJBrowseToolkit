@@ -26,7 +26,6 @@ See command line help for most current options::
 
   Generate images against a JBrowse server
 
-
   Options:
 
     -l, --locs <file>        Bed file of locations, see --help
@@ -37,6 +36,7 @@ See command line help for most current options::
     -n, --navOff             Remove nav bars
         --highlight          Highlight region (for short events)
     -q, --quality [n]        Image resolution [1,2,3] (default: 3)
+    -z, --zoom [n]           Zoom factor (default: 1)
     -p, --passwdFile [file]  User password for httpBasic
     -t, --timeout [n]        For each track allow upto N sec. (default: 10)
     -v, --version            output the version number
@@ -45,8 +45,10 @@ See command line help for most current options::
   Additional information:
 
   Image quality:
-    Best image quality is achieved with:
-      --imgType png --quality 3
+    Best image quality is achieved with pdf, but ~5x larger than png.
+
+  Zoom:
+    To alow capturing same region in a wider image as JBrowse has a minimum width per base.
 
 
   --locs bed file:
@@ -64,6 +66,7 @@ See command line help for most current options::
       # DATASET_NAME2 URL
       CHR START END
       ...
+
 
 Usage is simple, set up the display with relevant tracks in the browser and provide the updated URL it to the script::
 
@@ -87,7 +90,8 @@ Usage is simple, set up the display with relevant tracks in the browser and prov
    navOff       No        N/A               Presence causes the navigation panel to be excluded.
    highlight    No        N/A               Highlights the targeted range, for use with short
                                             events where JBrowse pads image.
-   quality      No        1,2,3             Resolution of image, 3 = best
+   quality      No        1,2,3             Resolution of image, 3 = best.
+   zoom         No        float             Increase the zoom as you would in browser (scales width).
    passwdFile   No        path              Path to file containing password (**please secure**).
    timeout      No        integer           Extends the default MAX timeout per track.
    version      No        N/A               Output version of script and exit when found.
