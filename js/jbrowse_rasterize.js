@@ -6,7 +6,11 @@ const colon = encodeURIComponent(':');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
 
-
+/**
+ * Process command line args and check validity
+ *
+ * @return {object} A commander object
+ */
 function cliChecks() {
   const program = require('commander');
   program
@@ -77,12 +81,23 @@ const bedHelp = `
 `
 
 /**
- * So that we can throw in an expression.
+ * So that we can throw custom error in an expression.
+ *
+ * @param {string} message - Error message
  */
 function throwErr(message) {
   throw new Error(message);
 }
 
+/**
+ * Cleans and configures baseUrl according to options
+ *
+ * @param {object} - commander object
+ * @param {string} - url to be processed
+ * @param {string} - subdirectory to append to options.outdir (or null)
+ *
+ * @return {object} - Url entities keyed as outloc, url, timeout.
+ */
 function urlCleaning(options, url, subdir) {
   // Handle standard cleaning of the URL
   let address = url
