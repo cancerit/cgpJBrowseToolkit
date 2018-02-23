@@ -34,6 +34,7 @@ See command line help for most current options::
     -i, --imgType [value]    Type of image [jpeg|pdf|png] (default: png)
     -o, --outdir [value]     Output folder (default: ./)
     -n, --navOff             Remove nav bars
+    -d, --dMode [value]      Change default display of alignment tracks [normal|compact|collapsed]
         --highlight          Highlight region (for short events)
     -q, --quality [n]        Image resolution [1,2,3] (default: 3)
     -z, --zoom [n]           Zoom factor (default: 1)
