@@ -21,7 +21,7 @@ function cliChecks() {
     .option('-i, --imgType [value]', 'Type of image [jpeg|pdf|png]', 'png')
     .option('-o, --outdir [value]', 'Output folder', './')
     .option('-n, --navOff', 'Remove nav bars', false)
-    .option('-d, --dMode [value]', 'Change default display of alignment tracks [normal|compact|collapsed]', '')
+    .option('-d, --dMode [value]', 'Change default display of alignment tracks [normal|compact|collapsed]')
     .option('    --highlight', 'Highlight region (for short events)', false)
     .option('-q, --quality [n]', 'Image resolution [1,2,3]', '3')
     .option('-z, --zoom [n]', 'Zoom factor', 1)
@@ -37,7 +37,7 @@ function cliChecks() {
 
   if (process.argv.length < 3 || program.args.length > 0) program.help();
 
-  if (program.dMode !== '' && !program.dMode.match(/^(normal|compact|collapsed)$/)) {
+  if (program.dMode !== undefined && !program.dMode.match(/^(normal|compact|collapsed)$/)) {
     throwErr("ERROR: -d|--dMode only accepts values of: normal, compact, collapsed");
   }
 
@@ -245,7 +245,7 @@ function main() {
         throwErr("ERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
       }
 
-      if(program.dMode !== '') {
+      if(program.dMode !== undefined) {
         const tracks = await page.$$('.track_jbrowse_view_track_alignments2');
         for (let t of tracks) {
           await page.evaluate((t, mode) => {

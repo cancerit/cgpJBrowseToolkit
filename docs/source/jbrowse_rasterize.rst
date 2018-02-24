@@ -86,12 +86,19 @@ Usage is simple, set up the display with relevant tracks in the browser and prov
    locs         Yes       ``*.bed``         Bed file of locations to snapshot, not bgzip'ed.
    baseUrl      No *      URL               JBrowse URL to base all snapshots on, unless defined in bed file.
    width        Yes       integer           Width in pixels for generated image.
-   imgType      Yes       ``jpeg|pdf|png``  Type of image to generate.
+   imgType      Yes       ``jpeg``          Type of image to generate.
+                          ``pdf``
+                          ``png``
    outdir       Yes       path              Output folder.
    navOff       No        N/A               Presence causes the navigation panel to be excluded.
+   dMode        No        ``normal``        Change alignments2 tracks default display mode.
+                          ``compact``
+                          ``collapsed``
    highlight    No        N/A               Highlights the targeted range, for use with short
                                             events where JBrowse pads image.
-   quality      No        1,2,3             Resolution of image, 3 = best.
+   quality      No        ``1``             Resolution of image, 3 = best.
+                          ``2``
+                          ``3``
    zoom         No        float             Increase the zoom as you would in browser (scales width).
    passwdFile   No        path              Path to file containing password (**please secure**).
    timeout      No        integer           Extends the default MAX timeout per track.
