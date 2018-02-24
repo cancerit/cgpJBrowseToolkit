@@ -8,6 +8,7 @@ function ehandle {
   R=$1
   if [ $R -ne 0 ]; then
     echo "ERRORS occurred: $R"
+    rm -rf imgTest
     killserver
     exit $R
   fi
@@ -24,34 +25,36 @@ cd $SCRIPT_PATH/jbrowse
 sleep 3
 cd $SCRIPT_PATH/..
 
-node --throw-deprecation js/jbrowse_rasterize.js --locs test/volvox.bed --navOff --baseUrl 'http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
+node --throw-deprecation js/jbrowse_rasterize.js --outdir imgTest --locs test/volvox.bed --navOff --baseUrl 'http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
 ehandle $?
-rm ctgA_17174-23150.png
+ls -l imgTest/ctgA_17174-23150.png
 ehandle $?
-node --throw-deprecation js/jbrowse_rasterize.js --imgType jpeg --locs test/volvox.bed --navOff --baseUrl 'http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
+node --throw-deprecation js/jbrowse_rasterize.js --outdir imgTest --imgType jpeg --locs test/volvox.bed --navOff --baseUrl 'http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
 ehandle $?
-rm ctgA_17174-23150.jpeg
+ls -l imgTest/ctgA_17174-23150.jpeg
 ehandle $?
-node --throw-deprecation js/jbrowse_rasterize.js --locs test/volvox_urlEmbedded.bed --navOff
+node --throw-deprecation js/jbrowse_rasterize.js --outdir imgTest --locs test/volvox_urlEmbedded.bed --navOff
 ehandle $?
-rm EmbeddedUrl/ctgA_17174-23150.png
+ls -l imgTest/EmbeddedUrl/ctgA_17174-23150.png
 ehandle $?
-node --throw-deprecation js/jbrowse_rasterize.js --locs test/volvox_urlEmbedded.bed --navOff --imgType pdf
+node --throw-deprecation js/jbrowse_rasterize.js --outdir imgTest --locs test/volvox_urlEmbedded.bed --navOff --imgType pdf
 ehandle $?
-rm EmbeddedUrl/ctgA_17174-23150.pdf
+ls -l imgTest/EmbeddedUrl/ctgA_17174-23150.pdf
 ehandle $?
-node --throw-deprecation js/jbrowse_rasterize.js --locs test/volvox_urlEmbedded.bed --navOff --imgType pdf --zoom 2 --outdir z2
+node --throw-deprecation js/jbrowse_rasterize.js --outdir imgTest --locs test/volvox_urlEmbedded.bed --navOff --imgType pdf --zoom 2
 ehandle $?
-rm z2/EmbeddedUrl/ctgA_17174-23150.pdf
+ls -l imgTest/EmbeddedUrl/ctgA_17174-23150.pdf
 ehandle $?
-node --throw-deprecation js/jbrowse_rasterize.js --locs test/volvox_urlEmbedded.bed --navOff --imgType png --zoom 2 --outdir z2
+node --throw-deprecation js/jbrowse_rasterize.js --outdir imgTest --locs test/volvox_urlEmbedded.bed --navOff --imgType png --zoom 2
 ehandle $?
-rm z2/EmbeddedUrl/ctgA_17174-23150.png
+ls -l imgTest/EmbeddedUrl/ctgA_17174-23150.png
 ehandle $?
-node --throw-deprecation js/jbrowse_rasterize.js --locs test/volvox_urlEmbedded.bed --navOff --imgType png --outdir compact --dMode compact
+node --throw-deprecation js/jbrowse_rasterize.js --outdir imgTest --locs test/volvox_urlEmbedded.bed --navOff --imgType png --dMode compact
 ehandle $?
-rm compact/EmbeddedUrl/ctgA_17174-23150.png
+ls -l imgTest/EmbeddedUrl/ctgA_17174-23150.png
 ehandle $?
+
+rm -rf imgTest
 
 killserver
 
