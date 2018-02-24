@@ -133,25 +133,28 @@ function urlCleaning(options, url, subdir) {
   }
 }
 
-function main() {
-  const program = cliChecks();
-
+/**
+ * Load the locations file and embed the required URLs
+ *
+ * @param {object} - commander object
+ * @return {array} - array of objects, {urlElement, realElement, fileElement} or {outloc, url, timeout}
+ */
+function loadLocs(options) {
   let locations = [];
-  if(program.baseUrl) {
-    locations.push(urlCleaning(program, program.baseUrl, null));
+  if(options.baseUrl) {
+    locations.push(urlCleaning(options, options.baseUrl, null));
   }
-
   // read in the bed locations
-  const rawLocs = fs.readFileSync(program.locs, "utf-8").split(/\r?\n/)
+  const rawLocs = fs.readFileSync(options.locs, "utf-8").split(/\r?\n/)
   for(let rawLoc of rawLocs) {
     if(rawLoc.length === 0) continue;
     if(rawLoc.startsWith('#')) {
-      if(program.baseUrl) {
+      if(options.baseUrl) {
         throwErr('ERROR: Dataset/URL cannot be defined in BED file when --baseUrl provided');
       }
       rawLoc = rawLoc.replace(/^#\s+/, '');
       const groups = rawLoc.match(/([^\s]+)\s+(http.+)/);
-      locations.push(urlCleaning(program, groups[2], groups[1]));
+      locations.push(urlCleaning(options, groups[2], groups[1]));
       continue;
     }
 
@@ -170,25 +173,47 @@ function main() {
       fileElement: elements[0] + '_' + start + '-' + end
     });
   }
+  return locations;
+}
 
-  // load password if needed
-  let passwd;
-  if(program.passwdFile) passwd = fs.readFileSync(program.passwdFile, "utf-8").replace(/\r?\n/g, '');
-
+/**
+ * Get the height required for non-Track elements
+ *
+ * @param {object} - commander object
+ * @return {number} - height in pixels
+ */
+function headerHeight(options) {
   // menubar 27
   // navbox 33
   // overview 22 (surrounds overviewtrack_overview_loc_track)
   // static_track 14
   let minHeight = 96;
-  if(program.navOff) minHeight = 26;
+  if(options.navOff) minHeight = 26;
+  return minHeight;
+}
+
+/**
+ * Load password for httpBasic from file when provided.
+ *
+ * @param {object} - commander object
+ * @return {string|null} - Loaded password or null
+ */
+function loadPw(options) {
+  if(options.passwdFile) return fs.readFileSync(options.passwdFile, "utf-8").replace(/\r?\n/g, '');
+  return null;
+}
+
+function main() {
+  const program = cliChecks();
+  const locations = loadLocs(program);
+  const minHeight = headerHeight(program);
+  const passwd = loadPw(program);
 
   (async () => {
     const browser = await puppeteer.launch({ignoreHTTPSErrors: true, headless: true});
     const page = await browser.newPage();
     await page.setCacheEnabled(true);
-    if(passwd) {
-      await page.authenticate({username: process.env.USER, password: passwd});
-    }
+    if(passwd) await page.authenticate({username: process.env.USER, password: passwd});
 
     let {address, timeout, outloc} = ['', 0, ''];
 
