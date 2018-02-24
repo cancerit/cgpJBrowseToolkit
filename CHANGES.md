@@ -3,12 +3,15 @@
 ## 2.0.0
 
 * Switched to [puppeteer](https://github.com/GoogleChrome/puppeteer).
-* Drop bmp support.
+  * Lost bmp support.
 * Height param no longer needed.
 * Utilise 'highres' option of JBrowse via `--quality` param.
 * Added ability to extend timeout.
 * Added `--highlight` option.
 * baseUrl can be defined inline within locs bed file to change during execution.
+* Can force alignments2 tracks to different display mode.
+* Zoom available for small b.p. ranges
+* Ability to use multiple baseUrls via bed file comments added.
 
 ## 1.1.1
 
