@@ -18,7 +18,7 @@ Welcome to cgpJBrowseToolkit's documentation!
 General
 *******
 
-This project is provides scripts and tools which work with or on [JBrowse](http://jbrowse.org/)
+This project is provides scripts and tools which work with or on `JBrowse <http://jbrowse.org/>`_
 that are considered publicly useful.
 
 .. _other-docs:
@@ -31,12 +31,14 @@ that are considered publicly useful.
    installation
    howItWorks
 
+`CHANGES <https://github.com/cancerit/cgpJBrowseToolkit/blob/master/CHANGES.md>`_
+
 License
 -------
 
 The project is licensed under the `GNU Affero General Public License v3.0 license <https://github.com/cancerit/cgpJBrowseToolkit/blob/develop/LICENSE>`_::
 
-  Copyright (c) 2016-2017 Genome Research Ltd.
+  Copyright (c) 2016-2018 Genome Research Ltd.
 
   Author: Cancer Genome Project <cgpit@sanger.ac.uk>
 
