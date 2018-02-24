@@ -1,145 +1,299 @@
-#!/usr/bin/env casperjs
-var VERSION="1.1.1"
+#!/usr/bin/env node --throw-deprecation
 
-var casper = require('casper').create({
-  verbose: true,
-  logLevel: "warning",
-  retryTimeout: 1200
-});
-//casper.options.retryTimeout=1000;
-var system = require('system');
+const VERSION = '2.0.0';
 
-if(casper.cli.has("v")) {
-  console.log(VERSION)
-  phantom.exit(0)
+const puppeteer = require('puppeteer');
+const path = require('path');
+const colon = encodeURIComponent(':');
+const fs = require('fs');
+const mkdirp = require('mkdirp');
+
+/**
+ * Process command line args and check validity
+ *
+ * @return {object} A commander object
+ */
+function cliChecks() {
+  const program = require('commander');
+  program
+    .description('Generate images against a JBrowse server')
+    .option('-l, --locs <file>', 'Bed file of locations, see --help')
+    .option('-b, --baseUrl [value]', 'URL from pre configured JBrowse webpage, ommit if provided in BED file')
+    .option('-w, --width [n]', 'Width of image', 600)
+    .option('-i, --imgType [value]', 'Type of image [jpeg|pdf|png]', 'png')
+    .option('-o, --outdir [value]', 'Output folder', './')
+    .option('-n, --navOff', 'Remove nav bars', false)
+    .option('-d, --dMode [value]', 'Change default display of alignment tracks [normal|compact|collapsed]')
+    .option('    --highlight', 'Highlight region (for short events)', false)
+    .option('-q, --quality [n]', 'Image resolution [1,2,3]', '3')
+    .option('-z, --zoom [n]', 'Zoom factor', 1)
+    .option('-p, --passwdFile [file]', 'User password for httpBasic')
+    .option('-t, --timeout [n]', 'For each track allow upto N sec.', 10)
+    .version(VERSION, '-v, --version')
+    .on('--help', function() {
+      console.log("\n  Additional information:");
+      console.log(imageHelp);
+      console.log(bedHelp);
+    })
+    .parse(process.argv);
+
+  if (process.argv.length < 3 || program.args.length > 0) program.help();
+
+  if (program.dMode !== undefined && !program.dMode.match(/^(normal|compact|collapsed)$/)) {
+    throwErr("ERROR: -d|--dMode only accepts values of: normal, compact, collapsed");
+  }
+
+  if (!program.imgType.match(/^(jpeg|pdf|png)$/)) {
+    throwErr("ERROR: -i|--imgType only accepts values of: jpeg, pdf, png");
+  }
+
+  program.width = parseInt(program.width) || throwErr("ERROR: -w|--width not an int");
+  program.timeout = parseInt(program.timeout) || throwErr("ERROR: -t|--timeout not an int");
+  program.quality = parseInt(program.quality) || throwErr("ERROR: -q|--quality not an int");
+  program.zoom = parseFloat(program.zoom) || throwErr("ERROR: -z|--zoom not a float");
+
+  if(program.quality < 0 || program.quality > 3) throwErr("ERROR: -q|--quality not 1, 2 or 3");
+
+  return program;
 }
 
-var usage = "\nUSAGE: jbrowse_rasterize.js --width=<int> --imgType=<bmp|jpeg|pdf|png> --baseUrl=<url> --locs=<locations.bed> --outdir=<outdir> [--passwdFile=<file>] [--navOff]\n"
-            +"\tNOTE: if '--imgType=pdf' please set '--height=<required height>\n"
-            +"\tVERSION: use '--v' to get version of script, (--version gives the casperjs version)\n";
+const imageHelp = `
+  Image quality:
+    Best image quality is achieved with pdf, but ~5x larger than png.
 
-if (Object.keys(casper.cli.options).length < 7) {
-  console.log(usage);
-  phantom.exit(1);
+  Zoom:
+    To alow capturing same region in a wider image as JBrowse has a minimum width per base.
+`
+const bedHelp = `
+  --locs bed file:
+
+    Can include comment lines to switch the baseUrl used for the next block of
+    coordinates.
+
+    Any comment line will be processed into a datasource ($DS) name and URL.  Files generated will be
+    output to a subfolder of the specified --output area as $OUTPUT/$DS/$CHR-$START_$END.
+
+    FORMAT:
+
+      # DATASET_NAME URL
+      CHR START END
+      # DATASET_NAME2 URL
+      CHR START END
+      ...
+`
+
+/**
+ * So that we can throw custom error in an expression.
+ *
+ * @param {string} message - Error message
+ */
+function throwErr(message) {
+  throw new Error(message);
 }
 
-if(casper.cli.args.length !== 0) {
-  console.log("\nERROR: Please check key/value options are of the form '--option=value', '--baseUrl' value will require single quoting");
-  console.log(usage);
-  phantom.exit(1);
-}
+/**
+ * Cleans and configures baseUrl according to options
+ *
+ * @param {object} - commander object
+ * @param {string} - url to be processed
+ * @param {string} - subdirectory to append to options.outdir (or null)
+ *
+ * @return {object} - Url entities keyed as outloc, url, timeout.
+ */
+function urlCleaning(options, url, subdir) {
+  // Handle standard cleaning of the URL
+  let address = url
+    .replace(/loc=[^&]?/, '')
+    .replace(/&tracklist=[^&]?/, '')
+    .replace(/&nav=[^&]?/, '')
+    .replace(/&fullviewlink=[^&]?/, '')
+    .replace(/&highres=[^&]?/, '')
+    .replace(/&highlight=[^&]?/, '');
 
-var passwdFile = casper.cli.get("passwdFile");
-var width      = casper.cli.get("width");
-var outType    = casper.cli.get("imgType");
-var baseUrl    = casper.cli.get("baseUrl");
-var locs       = casper.cli.get("locs");
-var outDir     = casper.cli.get("outdir");
-var navOff     = casper.cli.has("navOff");
-
-var viewPortHeight = 2000;
-var height;
-if(casper.cli.has("height")) {
-  height = casper.cli.get("height");
-  if(height > viewPortHeight) {
-    viewPortHeight = height;
+  // turn off track list and fullview
+  address += '&tracklist=0&fullviewlink=0&highres='+options.quality;
+  if(options.navOff) { // optionally turn of the navigation tools
+    address += '&nav=0';
+  }
+  if(options.highlight) {
+    fullAddress += '&highlight='+loc.urlElement;
+  }
+  // cleanup any multiples of &&
+  address = address.replace(/[&]+/g,'&');
+  const tracks = address.match(/tracks=[^&]+/)[0].split(/%2C/g);
+  let outloc;
+  if(subdir != null) {
+    outloc = path.join(options.outdir, subdir);
+  }
+  else {
+    outloc = options.outdir;
+  }
+  return {
+    outloc: outloc,
+    url: address,
+    timeout: (30 + (options.timeout * tracks.length)) * 1000
   }
 }
 
-if(outType === 'pdf') {
-  var pdfHeight  = casper.cli.get("height");
-  if(pdfHeight == null) {
-    console.log("\nERROR: Please set '--height'\n");
-    console.log(usage);
-    phantom.exit(1);
+/**
+ * Load the locations file and embed the required URLs
+ *
+ * @param {object} - commander object
+ * @return {array} - array of objects, {urlElement, realElement, fileElement} or {outloc, url, timeout}
+ */
+function loadLocs(options) {
+  let locations = [];
+  if(options.baseUrl) {
+    locations.push(urlCleaning(options, options.baseUrl, null));
   }
-  viewPortHeight = pdfHeight;
+  // read in the bed locations
+  const rawLocs = fs.readFileSync(options.locs, "utf-8").split(/\r?\n/)
+  for(let rawLoc of rawLocs) {
+    if(rawLoc.length === 0) continue;
+    if(rawLoc.startsWith('#')) {
+      if(options.baseUrl) {
+        throwErr('ERROR: Dataset/URL cannot be defined in BED file when --baseUrl provided');
+      }
+      rawLoc = rawLoc.replace(/^#\s+/, '');
+      const groups = rawLoc.match(/([^\s]+)\s+(http.+)/);
+      locations.push(urlCleaning(options, groups[2], groups[1]));
+      continue;
+    }
+
+    const elements = rawLoc.split(/\t/);
+    if(elements.length !== 3) continue;
+    let start = parseInt(elements[1]);
+    const end = parseInt(elements[2]);
+    if(start >= end) {
+      console.warn('Skipping: bed location malformed: ' + rawLoc);
+      continue;
+    }
+    start += 1;
+    locations.push({
+      urlElement: elements[0] + colon + start + '..' + end,
+      realElement: elements[0] + ':' + start + '..' + end,
+      fileElement: elements[0] + '_' + start + '-' + end
+    });
+  }
+  return locations;
 }
 
-var fs = require('fs');
-var rawLocs = fs.read(locs).split(/\r?\n/)
-var passwd;
-
-if(passwdFile != null) passwd = fs.read(passwdFile).replace(/\r?\n/g, '');
-
-//get track count
-var trackCount = decodeURIComponent(baseUrl).match(/&tracks=([^$]+)/)[0].replace("&tracks=","").split(/,/).length;
-if(trackCount === 0) {
-  console.log("\nERROR: The URL provided has no tracks selected\n");
-  phantom.exit(1);
+/**
+ * Get the height required for non-Track elements
+ *
+ * @param {object} - commander object
+ * @return {number} - height in pixels
+ */
+function headerHeight(options) {
+  // menubar 27
+  // navbox 33
+  // overview 22 (surrounds overviewtrack_overview_loc_track)
+  // static_track 14
+  let minHeight = 96;
+  if(options.navOff) minHeight = 26;
+  return minHeight;
 }
 
-// Handle standard cleaning of the URL
-var address = baseUrl.replace(/loc=[^&]+/, '').replace(/&tracklist=[01]/, '').replace(/&nav=[01]/, '').replace(/&fullviewlink=[01]/, '').replace('&highlight=', '');
-// turn off track list
-address += '&tracklist=0';
-// turn off fullviewlink
-address += '&fullviewlink=0';
-if(navOff) { // optionally turn of the navigation tools
-  address += '&nav=0';
-}
-// cleanup any multiples of &&
-address = address.replace(/[&]+/g,'&');
-
-// setup page stuff here
-pageWidth = parseInt(width);
-
-// first cleanup the input into json objects
-var locations = [];
-for(var i=0; i<rawLocs.length; i++) {
-  if(rawLocs[i].length === 0) continue;
-  var elements = rawLocs[i].split(/\t/);
-  if(elements.length !== 3) continue;
-  locations[locations.length] = { 'chr': elements[0], 'start': elements[1], 'end': elements[2] };
+/**
+ * Load password for httpBasic from file when provided.
+ *
+ * @param {object} - commander object
+ * @return {string|null} - Loaded password or null
+ */
+function loadPw(options) {
+  if(options.passwdFile) return fs.readFileSync(options.passwdFile, "utf-8").replace(/\r?\n/g, '');
+  return null;
 }
 
-var colon = encodeURIComponent(':');
-var loadTimeout = trackCount * 10; // seconds, converted later
-if(loadTimeout < 30) {loadTimeout = 30;}
+function main() {
+  const program = cliChecks();
+  const locations = loadLocs(program);
+  const minHeight = headerHeight(program);
+  const passwd = loadPw(program);
 
-casper.start();
+  (async () => {
+    const browser = await puppeteer.launch({ignoreHTTPSErrors: true, headless: true});
+    const page = await browser.newPage();
+    await page.setCacheEnabled(true);
+    if(passwd) await page.authenticate({username: process.env.USER, password: passwd});
 
-if(passwd != null) casper.setHttpAuth(system.env.USER, passwd);
+    let {address, timeout, outloc} = ['', 0, ''];
 
-casper.then(function() {
-  for (var current = 0; current < locations.length; current++) {
-    (function(cntr) {
-      var output = outDir + '/' + locations[cntr].chr + '_' + locations[cntr].start + '-' + locations[cntr].end + '.' + outType;
-      var url = address+'&loc=' +locations[cntr].chr + colon + locations[cntr].start + '..' + locations[cntr].end;
-      casper.thenOpen(url, function() {
-        this.echo('Processing url: ' + url);
-        this.viewport(pageWidth, viewPortHeight);
-        this.then(function() {
-          this.waitFor(function check() {
-            return this.evaluate(function(expTracks) {
-              return document.readyState === "complete"
-                      && document.getElementsByClassName('innerTrackContainer')[0].getElementsByClassName('track').length === expTracks + 1
-                      && document.getElementsByClassName('loading').length === 0;
-            }, trackCount);
-          }, function then() {    // step to execute when check() is ok
-            this.then(function() {
-              var height = this.page.evaluate(function() {
-                var heightSum = 0;
-                var trackDivs = document.getElementById("zoomContainer").children[0].children[0].children;
-                for(var i=0, len = trackDivs.length ; i < len; i++) {
-                  if(trackDivs[i].id === 'gridtrack') continue;
-                  heightSum += trackDivs[i].offsetHeight;
-                }
-                return heightSum;
-              });
-              // here we can download stuff
-              this.then(function() {
-                this.echo('\tCapturing to: ' + output, 'info');
-                this.capture(output, { top: 0, left: 0, width: pageWidth, height: height + 150 });
-              });
-            });
-          }, function timeout() { // step to execute if check has failed
-            this.echo("Track divs still loading after "+loadTimeout+" second(s) have elapsed, aborting").exit();
-          }, loadTimeout*1000);
+    for (const loc of locations) {
+      if(loc.url) {
+        address = loc.url;
+        timeout = loc.timeout;
+        outloc = loc.outloc;
+        // make sure we have somewhere to write to:
+        mkdirp(outloc, function (err) {
+          if (err) {
+            throw err;
+          }
         });
-      });
-    })(current);
-  }
-});
+        continue;
+      }
+      let fullAddress = address+'&loc='+loc.urlElement;
+      process.stdout.write('Processing: '+fullAddress);
+      const started = Date.now();
+      // need to reset each time
+      await page.setViewport({width: program.width, height: 2000});
+      const response = await page.goto(
+        fullAddress, {
+          timeout: timeout,
+          waitUntil: ['load', 'domcontentloaded', 'networkidle0']
+        }
+      );
+      if(! response.ok()) {
+        throwErr("ERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
+      }
 
-casper.run();
+      if(program.dMode !== undefined) {
+        const tracks = await page.$$('.track_jbrowse_view_track_alignments2');
+        for (let t of tracks) {
+          await page.evaluate((t, mode) => {
+            t.track.displayMode = mode;
+            t.track.layout = null;
+            t.track.redraw();
+          }, t, program.dMode);
+        }
+        await page.waitFor(500); // allow time for redraw
+      }
+
+      let trackHeight = minHeight;
+      const divs = await page.$$('.track');
+      for (const d of divs) {
+        const propId = await d.getProperty('id')
+        const id = await propId.jsonValue();
+        if(id == 'gridtrack' || id == 'overviewtrack_overview_loc_track' || id == 'static_track') {
+          continue;
+        }
+
+        const bb = await d.boundingBox();
+        trackHeight += bb.height;
+      }
+      await page.setViewport({width: program.width, height: trackHeight, deviceScaleFactor: program.zoom});
+      const finalPath = path.join(outloc, loc.fileElement+'.'+program.imgType);
+      if(program.imgType === 'pdf') {
+        await page.pdf({path: finalPath, scale: program.zoom, width: parseInt(program.width * program.zoom), height: parseInt(trackHeight * program.zoom)})
+      }
+      else {
+        let shotOpts = {
+          path: finalPath,
+          fullPage: false
+        }
+        if(program.imgType === 'jpeg' && program.quality === 3) shotOpts['quality'] = 100;
+        await page.screenshot(shotOpts);
+      }
+      const took = Date.now() - started;
+      console.log(' ('+took/1000+' sec.)')
+    }
+    await browser.close();
+  })();
+}
+
+try {
+  main();
+} catch(err) {
+  console.error("\n"+err.message+"\n");
+  process.exit(1);
+}

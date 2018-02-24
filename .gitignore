@@ -1,2 +1,4 @@
 /docs/build
 /generate_joss
+/test/jbrowse
+/*.log

@@ -1,20 +1,26 @@
-cgpJBrowseToolkit
-=================
+# cgpJBrowseToolkit
 
-Master: [![Build Status](https://travis-ci.org/cancerit/cgpJBrowseToolkit.svg?branch=master)](https://travis-ci.org/cancerit/cgpJBrowseToolkit)
- [![Documentation Status](http://readthedocs.org/projects/cgpjbrowsetoolkit/badge/?version=stable)](http://cgpjbrowsetoolkit.readthedocs.io/en/stable/?badge=stable)
+| Master                                        | Develop                                         |
+| --------------------------------------------- | ----------------------------------------------- |
+| [![Master Badge][travis-master]][travis-base] | [![Develop Badge][travis-develop]][travis-base] |
 
-Develop: [![Build Status](https://travis-ci.org/cancerit/cgpJBrowseToolkit.svg?branch=develop)](https://travis-ci.org/cancerit/cgpJBrowseToolkit)
- [![Documentation Status](http://readthedocs.org/projects/cgpjbrowsetoolkit/badge/?version=develop)](http://cgpjbrowsetoolkit.readthedocs.io/en/stable/?badge=develop)
+Contains various scripts and tools that work with or on [JBrowse][jbrowse] that are publicly useful.
 
-Contains various scripts and tools that work with or on [JBrowse](http://jbrowse.org/) that are publicly useful.
+Please see [Read The Docs][cjtkrtd] for current documentation and user installation instructions.
 
-Please see [Read The Docs](http://cgpjbrowsetoolkit.readthedocs.io/en/stable/) for current documentation.
-
-## Developer info
+## Additional developer details
 
 ### Documentation
-Documentation is automatically built on [Read The Docs](https://readthedocs.org/).  To check formatting before committing run:
+
+Documentation is automatically built on [Read The Docs][rtd].
+
+To check formatting before committing you need to install:
+
+```bash
+pip install --user sphinx sphinx-autobuild sphinx_rtd_theme
+```
+
+And then to validate:
 
 ```bash
 cd $PROJECT_ROOT/docs
@@ -24,19 +30,27 @@ make html
 Then open/refresh `$PROJECT_ROOT/docs/build/html/index.html` in your browser.
 
 ### Javascript Style
-Check the vailidity of the JS files with eslint on your local copy before pushing:
+
+To check the vailidity of the JS files with eslint on your local copy install:
+
+```bash
+npm install eslint
+```
+
+And run:
 
 ```bash
 eslint js/jbrowse_rasterize.js
 ```
 
 ### Version number
+
 The version is found in ``js/jbrowse_rasterize.js``.
 
-LICENCE
-=======
+## LICENCE
 
-Copyright (c) 2016-2017 Genome Research Ltd.
+```
+Copyright (c) 2016-2018 Genome Research Ltd.
 
 Author: Cancer Genome Project <cgpit@sanger.ac.uk>
 
@@ -64,3 +78,14 @@ reads ‘Copyright (c) 2005, 2007, 2008, 2009, 2011, 2012’ and a copyright
 statement that reads ‘Copyright (c) 2005-2012’ should be interpreted as being
 identical to a statement that reads ‘Copyright (c) 2005, 2006, 2007, 2008,
 2009, 2010, 2011, 2012’."
+```
+
+<!-- refs -->
+[cjtkrtd]: http://cgpjbrowsetoolkit.readthedocs.io/en/stable
+[jbrowse]: http://jbrowse.org
+[rtd]: https://readthedocs.org
+
+<!-- travis -->
+[travis-base]: https://travis-ci.org/cancerit/cgpJBrowseToolkit
+[travis-master]: https://travis-ci.org/cancerit/cgpJBrowseToolkit.svg?branch=master
+[travis-develop]: https://travis-ci.org/cancerit/cgpJBrowseToolkit.svg?branch=develop

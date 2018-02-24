@@ -33,12 +33,14 @@ Access the code on `GitHub <https://github.com/cancerit/cgpJBrowseToolkit>`_.
    installation
    howItWorks
 
+`CHANGES <https://github.com/cancerit/cgpJBrowseToolkit/blob/master/CHANGES.md>`_
+
 License
 -------
 
 The project is licensed under the `GNU Affero General Public License v3.0 license <https://github.com/cancerit/cgpJBrowseToolkit/blob/develop/LICENSE>`_::
 
-  Copyright (c) 2016-2017 Genome Research Ltd.
+  Copyright (c) 2016-2018 Genome Research Ltd.
 
   Author: Cancer Genome Project <cgpit@sanger.ac.uk>
 
