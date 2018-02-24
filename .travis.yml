@@ -21,3 +21,4 @@ before_script:
 script:
   - eslint js
   - cd docs && make html
+  - node js/jbrowse_rasterize.js --version
