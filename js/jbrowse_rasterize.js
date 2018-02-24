@@ -1,5 +1,7 @@
 #!/usr/bin/env node --throw-deprecation
 
+const VERSION = '2.0.0';
+
 const puppeteer = require('puppeteer');
 const path = require('path');
 const colon = encodeURIComponent(':');
@@ -27,7 +29,7 @@ function cliChecks() {
     .option('-z, --zoom [n]', 'Zoom factor', 1)
     .option('-p, --passwdFile [file]', 'User password for httpBasic')
     .option('-t, --timeout [n]', 'For each track allow upto N sec.', 10)
-    .version('0.1.0', '-v, --version')
+    .version(VERSION, '-v, --version')
     .on('--help', function() {
       console.log("\n  Additional information:");
       console.log(imageHelp);

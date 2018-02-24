@@ -11,7 +11,7 @@ node_js:
 
 install:
   - npm install -g eslint
-  - npm install puppeteer commander
+  - npm install puppeteer commander mkdirp
   - pip install --user sphinx sphinx-autobuild sphinx_rtd_theme
 
 before_script:
@@ -20,4 +20,5 @@ before_script:
 
 script:
   - eslint js
-  - cd docs && make html
+  - cd docs && make html && cd ..
+  - node js/jbrowse_rasterize.js --version
