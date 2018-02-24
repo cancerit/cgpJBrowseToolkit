@@ -19,6 +19,5 @@ before_script:
   - "sudo chmod 4755 /opt/google/chrome/chrome-sandbox"
 
 script:
-  - test/run_tests.sh
   - eslint js
   - cd docs && make html
