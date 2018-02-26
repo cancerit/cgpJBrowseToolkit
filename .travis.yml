@@ -1,5 +1,6 @@
 notifications:
   slack: wtsi-cgpit:ptUMR1tkNyZJYd9TpGoss8WR
+    on_failure: change
   email: false
 
 sudo: true
@@ -12,7 +13,6 @@ node_js:
 install:
   - npm install -g eslint
   - npm install puppeteer commander mkdirp
-  - pip install --user sphinx sphinx-autobuild sphinx_rtd_theme
 
 before_script:
   - "sudo chown root /opt/google/chrome/chrome-sandbox"
@@ -20,5 +20,4 @@ before_script:
 
 script:
   - eslint js
-  - cd docs && make html && cd ..
   - node js/jbrowse_rasterize.js --version
