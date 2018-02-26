@@ -6,18 +6,36 @@
       "@id": "0000-0002-5634-1539",
       "@type": "Person",
       "email": "keiranmraine@gmail.com",
-      "name": "Keiran Raine",
+      "name": "Keiran M Raine",
+      "affiliation": "Cancer, Ageing and Somatic Mutation, Wellcome Trust Sanger Institute, Cambridge, UK"
+    },
+    {
+      "@id": "0000-0002-5735-6839",
+      "@type": "Person",
+      "name": "Adam P Butler",
+      "affiliation": "Cancer, Ageing and Somatic Mutation, Wellcome Trust Sanger Institute, Cambridge, UK"
+    },
+    {
+      "@id": "0000-0002-0846-1296",
+      "@type": "Person",
+      "name": "Jon W Teague",
+      "affiliation": "Cancer, Ageing and Somatic Mutation, Wellcome Trust Sanger Institute, Cambridge, UK"
+    },
+    {
+      "@id": "???",
+      "@type": "Person",
+      "name": "Peter Campbell",
       "affiliation": "Cancer, Ageing and Somatic Mutation, Wellcome Trust Sanger Institute, Cambridge, UK"
     }
   ],
   "identifier": "",
   "codeRepository": "https://github.com/cancerit/cgpJBrowseToolkit",
-  "datePublished": "2017-07-23",
-  "dateModified": "2017-07-23",
-  "dateCreated": "2017-07-23",
-  "description": "Tools and scripts for working with JBrowse",
-  "keywords": "JBrowse, rasterize, visualisation, genome browser",
-  "license": "AGPL-3.0",
+  "datePublished": "2018-02-26",
+  "dateModified": "2018-02-26",
+  "dateCreated": "2018-02-26",
+  "description": "Holds publicly useful scripts and tools for JBrowse users and admins",
+  "keywords": "JBrowse,rasterize,visualisation,images",
+  "license": "AGPL v3.0",
   "title": "cgpJBrowseToolkit",
-  "version": "1.1.1"
+  "version": "2.1.0"
 }
