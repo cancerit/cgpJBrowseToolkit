@@ -1,7 +1,7 @@
 notifications:
-  slack: wtsi-cgpit:ptUMR1tkNyZJYd9TpGoss8WR
-    on_failure: change
-  email: false
+  - slack: wtsi-cgpit:ptUMR1tkNyZJYd9TpGoss8WR
+      on_failure: change
+  - email: false
 
 sudo: true
 
