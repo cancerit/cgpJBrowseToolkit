@@ -79,7 +79,7 @@ Generate screenshots from your JBrowse instance using the URL and a BED file of 
     Best image quality is achieved with pdf, but ~5x larger than png.
 
   Zoom:
-    To alow capturing same region in a wider image as JBrowse has a minimum width per base.
+    To allow capturing same region in a wider image as JBrowse has a maximum width per base.
 
 
   --locs bed file:
@@ -87,31 +87,53 @@ Generate screenshots from your JBrowse instance using the URL and a BED file of 
     Can include comment lines to switch the baseUrl used for the next block of
     coordinates.
 
-    Any comment line will be processed into a datasource ($DS) name and URL.  Files generated will be
-    output to a subfolder of the specified --output area as $OUTPUT/$DS/$CHR-$START_$END.
+    Any comment line will be processed into a dataset ($DS) name and URL. Files generated will be
+    output to a subfolder of the specified --output area as:
+
+      $OUTPUT/$DS/$CHR-$START_$END.
 
     FORMAT:
-
       # DATASET_NAME URL
       CHR START END
       # DATASET_NAME2 URL
       CHR START END
       ...
+
+    Comment/URL separator lines can be space or tab separated elements.
+    BED formatted lines must be tab separated and only have 3 elements.
 ```
 
-Usage is simple, set up the display with relevant tracks in the browser and provide the updated URL it to the script:
+Usage is simple, set up the display with relevant tracks in the browser and provide the updated URL either:
 
+1. On the command line:
 ```
-  $ jbrowse_rasterize.js \
-  --width 1200 \
-  --imgType png \
-  --locs test/volvox.bed \
-  --outdir somewhere \
-  --baseUrl 'http://jbrowse.org/code/JBrowse-1.12.4/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox'
+cat test/volvox.bed
+ctgA	17173	23150
+...
+$ jbrowse_rasterize.js \
+--width 1200 \
+--imgType png \
+--locs test/volvox.bed \
+--outdir somewhere \
+--baseUrl \
+'http://jbrowse.org/code/JBrowse-1.12.4/?tracks=Transcript%2Cvolvox-sorted_bam_coverage&data=sample_data%2Fjson%2Fvolvox'
+```
+
+1. Or embed the URL in the bed file:
+```
+$ cat test/volvox_urlEmbedded.bed
+# EmbeddedUrl http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox
+ctgA	17173	23150
+...
+$ jbrowse_rasterize.js \
+--width 1200 \
+--imgType png \
+--locs test/volvox_urlEmbedded.bed \
+--outdir somewhere
 ```
 
 ##### HTTP-BASIC authentication
--------------------------
+
 To use this with a site secured with http_basic you need to provide your password for the
 authentication phase.
 
@@ -123,22 +145,13 @@ Other:
 * If not provided when required you will see the message `ERROR: Check you connection and if you need to provide a password (http error code: 401)`
 
 #### Tested track types
-------------------
-All testing carried out under JBrowse 1.12.4 onwards.
 
-Functionality of the following tracks has been tested:
+We are not aware of any track types which do not render.  Some minor rendering issues occur in the
+navigation/ruler areas for PDF.
 
-* Alignments2
-* VCF
-* XYplot
-* CanvasFeatures
-* Sequence
+Most recently confirmed working with JBrowse 1.12.4.
 
-#### Known issues
-
-* [multibigwig](https://github.com/elsiklab/multibigwig) - plugin track will only render with v0.7.0+
-
-Please report any problems with other track types on the [GitHub issue tracker][gh-issues]
+Please report any problems on the [GitHub issue tracker][gh-issues].
 
 ## Additional developer details
 

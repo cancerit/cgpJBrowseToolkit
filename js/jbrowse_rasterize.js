@@ -93,7 +93,7 @@ const imageHelp = `
     Best image quality is achieved with pdf, but ~5x larger than png.
 
   Zoom:
-    To alow capturing same region in a wider image as JBrowse has a minimum width per base.
+    To allow capturing same region in a wider image as JBrowse has a maximum width per base.
 `
 const bedHelp = `
   --locs bed file:
@@ -101,16 +101,20 @@ const bedHelp = `
     Can include comment lines to switch the baseUrl used for the next block of
     coordinates.
 
-    Any comment line will be processed into a datasource ($DS) name and URL.  Files generated will be
-    output to a subfolder of the specified --output area as $OUTPUT/$DS/$CHR-$START_$END.
+    Any comment line will be processed into a dataset ($DS) name and URL. Files generated will be
+    output to a subfolder of the specified --output area as:
+
+      $OUTPUT/$DS/$CHR-$START_$END.
 
     FORMAT:
-
       # DATASET_NAME URL
       CHR START END
       # DATASET_NAME2 URL
       CHR START END
       ...
+
+    Comment/URL separator lines can be space or tab separated elements.
+    BED formatted lines must be tab separated and only have 3 elements.
 `
 
 /**
