@@ -1,5 +1,5 @@
 {
-  "name": "@keiranmraine/cgpjbrowsetoolkit",
+  "name": "@cancerit/cgpjbrowsetoolkit",
   "version": "2.0.0",
   "description": "CLI tools for working with JBrowse",
   "directories": {
@@ -16,7 +16,8 @@
   "keywords": [
     "JBrowse"
   ],
-  "author": "Keiran Raine",
+  "author": "CASM/Cancer IT",
+  "email": "cgphelp@sanger.ac.uk",
   "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/cancerit/cgpJBrowseToolkit/issues"

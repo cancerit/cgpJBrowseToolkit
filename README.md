@@ -36,12 +36,13 @@ npm install github:cancerit/cgpJBrowseToolkit [-g]
 
 Dependencies include:
 
-* `commander <https://www.npmjs.com/package/commander>`_
-* `puppeteer <https://www.npmjs.com/package/puppeteer>`_
-* `mkdirp <https://www.npmjs.com/package/mkdirp>`_
-
+* [commander](https://www.npmjs.com/package/commander)
+* [puppeteer](https://www.npmjs.com/package/puppeteer)
+* [mkdirp](https://www.npmjs.com/package/mkdirp)
 
 ## Tools
+
+If you are having difficulty please check the linked [wiki][gh-wiki] before raising an [issue][gh-issues].
 
 ### jbrowse_rasterize
 
@@ -135,7 +136,7 @@ Functionality of the following tracks has been tested:
 
 #### Known issues
 
-* `multibigwig <https://github.com/elsiklab/multibigwig>`_ - plugin track will only render with v0.7.0+
+* [multibigwig](https://github.com/elsiklab/multibigwig) - plugin track will only render with v0.7.0+
 
 Please report any problems with other track types on the [GitHub issue tracker][gh-issues]
 
@@ -162,14 +163,14 @@ eslint js/*.js
 
 ### Version number
 
-The version is found in ``js/jbrowse_rasterize.js``.
+The version is found in `js/version.js` and `package.json` and should be kept in sync.
 
 ## LICENCE
 
 ```
 Copyright (c) 2016-2018 Genome Research Ltd.
 
-Author: Cancer Genome Project <cgpit@sanger.ac.uk>
+Author: CASM/Cancer IT <cgphelp@sanger.ac.uk>
 
 This file is part of cgpJBrowseToolkit.
 
@@ -200,6 +201,7 @@ identical to a statement that reads ‘Copyright (c) 2005, 2006, 2007, 2008,
 <!-- refs -->
 [jbrowse]: http://jbrowse.org
 [gh-issues]:https://github.com/cancerit/cgpJBrowseToolkit/issues
+[gh-wiki]: https://github.com/cancerit/cgpJBrowseToolkit/wiki
 
 <!-- travis -->
 [travis-base]: https://travis-ci.org/cancerit/cgpJBrowseToolkit
