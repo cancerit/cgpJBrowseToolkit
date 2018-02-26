@@ -1,6 +1,37 @@
 #!/usr/bin/env node --throw-deprecation
 
-const VERSION = '2.0.0';
+/**
+ * Copyright (c) 2016-2018 Genome Research Ltd.
+ *
+ * Author: CASM/Cancer IT <cgphelp@sanger.ac.uk>
+ *
+ * This file is part of cgpJBrowseToolkit.
+ *
+ * cgpJBrowseToolkit is free software: you can redistribute it and/or modify it under
+ * the terms of the GNU Affero General Public License as published by the Free
+ * Software Foundation; either version 3 of the License, or (at your option) any
+ * later version.
+ *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * 1. The usage of a range of years within a copyright statement contained within
+ * this distribution should be interpreted as being equivalent to a list of years
+ * including the first and last year specified and all consecutive years between
+ * them. For example, a copyright statement that reads ‘Copyright (c) 2005, 2007-
+ * 2009, 2011-2012’ should be interpreted as being identical to a statement that
+ * reads ‘Copyright (c) 2005, 2007, 2008, 2009, 2011, 2012’ and a copyright
+ * statement that reads ‘Copyright (c) 2005-2012’ should be interpreted as being
+ * identical to a statement that reads ‘Copyright (c) 2005, 2006, 2007, 2008,
+ * 2009, 2010, 2011, 2012’."
+ */
+
+const VERSION = require('./version.js');
 
 const puppeteer = require('puppeteer');
 const path = require('path');
@@ -62,7 +93,7 @@ const imageHelp = `
     Best image quality is achieved with pdf, but ~5x larger than png.
 
   Zoom:
-    To alow capturing same region in a wider image as JBrowse has a minimum width per base.
+    To allow capturing same region in a wider image as JBrowse has a maximum width per base.
 `
 const bedHelp = `
   --locs bed file:
@@ -70,16 +101,20 @@ const bedHelp = `
     Can include comment lines to switch the baseUrl used for the next block of
     coordinates.
 
-    Any comment line will be processed into a datasource ($DS) name and URL.  Files generated will be
-    output to a subfolder of the specified --output area as $OUTPUT/$DS/$CHR-$START_$END.
+    Any comment line will be processed into a dataset ($DS) name and URL. Files generated will be
+    output to a subfolder of the specified --output area as:
+
+      $OUTPUT/$DS/$CHR-$START_$END.
 
     FORMAT:
-
       # DATASET_NAME URL
       CHR START END
       # DATASET_NAME2 URL
       CHR START END
       ...
+
+    Comment/URL separator lines can be space or tab separated elements.
+    BED formatted lines must be tab separated and only have 3 elements.
 `
 
 /**
@@ -109,6 +144,9 @@ function urlCleaning(options, url, subdir) {
     .replace(/&fullviewlink=[^&]?/, '')
     .replace(/&highres=[^&]?/, '')
     .replace(/&highlight=[^&]?/, '');
+
+  // handle sometimes flaky 0.0.0.0 loopback
+  address = address.replace(/[/]{2}0\.0\.0\.0/, '//localhost');
 
   // turn off track list and fullview
   address += '&tracklist=0&fullviewlink=0&highres='+options.quality;
@@ -219,7 +257,7 @@ function main() {
 
     let {address, timeout, outloc} = ['', 0, ''];
 
-    for (const loc of locations) {
+    locLoop: for (const loc of locations) {
       if(loc.url) {
         address = loc.url;
         timeout = loc.timeout;
@@ -235,28 +273,45 @@ function main() {
       let fullAddress = address+'&loc='+loc.urlElement;
       process.stdout.write('Processing: '+fullAddress);
       const started = Date.now();
-      // need to reset each time
-      await page.setViewport({width: program.width, height: 2000});
-      const response = await page.goto(
-        fullAddress, {
-          timeout: timeout,
-          waitUntil: ['load', 'domcontentloaded', 'networkidle0']
-        }
-      );
-      if(! response.ok()) {
-        throwErr("ERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
-      }
 
-      if(program.dMode !== undefined) {
-        const tracks = await page.$$('.track_jbrowse_view_track_alignments2');
-        for (let t of tracks) {
-          await page.evaluate((t, mode) => {
-            t.track.displayMode = mode;
-            t.track.layout = null;
-            t.track.redraw();
-          }, t, program.dMode);
+      let rendered = false;
+      let tries = 1;
+      while(!rendered) {
+        try {
+          // need to reset each time
+          await page.setViewport({width: program.width, height: 2000});
+          const response = await page.goto(
+            fullAddress, {
+              timeout: timeout,
+              waitUntil: ['load', 'domcontentloaded', 'networkidle0']
+            }
+          );
+          if(! response.ok()) {
+            throwErr("ERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
+          }
+
+          if(program.dMode !== undefined) {
+            const tracks = await page.$$('.track_jbrowse_view_track_alignments2');
+            for (let t of tracks) {
+              await page.evaluate((t, mode) => {
+                t.track.displayMode = mode;
+                t.track.layout = null;
+                t.track.redraw();
+              }, t, program.dMode);
+            }
+            await page.waitFor(500); // allow time for redraw
+          }
+        } catch(err) {
+          if(tries === 1) console.warn();
+          console.warn(err.message);
+          if(tries++ < 3) {
+            console.log("\tTry "+tries);
+            continue;
+          }
+          console.error("Image not generated for: "+fullAddress);
+          continue locLoop;
         }
-        await page.waitFor(500); // allow time for redraw
+        rendered=true;
       }
 
       let trackHeight = minHeight;

@@ -1,5 +1,11 @@
 # Changes
 
+## 2.1.0
+
+* Formalise to allow install via `npm`.
+* Remove RTD, large overhead when README and linked docs are adequate.
+* Updated email and group name in license and docs.
+
 ## 2.0.0
 
 * Switched to [puppeteer](https://github.com/GoogleChrome/puppeteer).
