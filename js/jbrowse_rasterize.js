@@ -141,6 +141,9 @@ function urlCleaning(options, url, subdir) {
     .replace(/&highres=[^&]?/, '')
     .replace(/&highlight=[^&]?/, '');
 
+  // handle sometimes flaky 0.0.0.0 loopback
+  address = address.replace(/[/]{2}0\.0\.0\.0/, '//localhost');
+
   // turn off track list and fullview
   address += '&tracklist=0&fullviewlink=0&highres='+options.quality;
   if(options.navOff) { // optionally turn of the navigation tools
@@ -250,7 +253,7 @@ function main() {
 
     let {address, timeout, outloc} = ['', 0, ''];
 
-    for (const loc of locations) {
+    locLoop: for (const loc of locations) {
       if(loc.url) {
         address = loc.url;
         timeout = loc.timeout;
@@ -266,28 +269,45 @@ function main() {
       let fullAddress = address+'&loc='+loc.urlElement;
       process.stdout.write('Processing: '+fullAddress);
       const started = Date.now();
-      // need to reset each time
-      await page.setViewport({width: program.width, height: 2000});
-      const response = await page.goto(
-        fullAddress, {
-          timeout: timeout,
-          waitUntil: ['load', 'domcontentloaded', 'networkidle0']
-        }
-      );
-      if(! response.ok()) {
-        throwErr("ERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
-      }
 
-      if(program.dMode !== undefined) {
-        const tracks = await page.$$('.track_jbrowse_view_track_alignments2');
-        for (let t of tracks) {
-          await page.evaluate((t, mode) => {
-            t.track.displayMode = mode;
-            t.track.layout = null;
-            t.track.redraw();
-          }, t, program.dMode);
+      let rendered = false;
+      let tries = 1;
+      while(!rendered) {
+        try {
+          // need to reset each time
+          await page.setViewport({width: program.width, height: 2000});
+          const response = await page.goto(
+            fullAddress, {
+              timeout: timeout,
+              waitUntil: ['load', 'domcontentloaded', 'networkidle0']
+            }
+          );
+          if(! response.ok()) {
+            throwErr("ERROR: Check you connection and if you need to provide a password (http error code: "+response.status()+')');
+          }
+
+          if(program.dMode !== undefined) {
+            const tracks = await page.$$('.track_jbrowse_view_track_alignments2');
+            for (let t of tracks) {
+              await page.evaluate((t, mode) => {
+                t.track.displayMode = mode;
+                t.track.layout = null;
+                t.track.redraw();
+              }, t, program.dMode);
+            }
+            await page.waitFor(500); // allow time for redraw
+          }
+        } catch(err) {
+          if(tries === 1) console.warn();
+          console.warn(err.message);
+          if(tries++ < 3) {
+            console.log("\tTry "+tries);
+            continue;
+          }
+          console.error("Image not generated for: "+fullAddress);
+          continue locLoop;
         }
-        await page.waitFor(500); // allow time for redraw
+        rendered=true;
       }
 
       let trackHeight = minHeight;

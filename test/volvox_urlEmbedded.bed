@@ -1,2 +1,4 @@
 # EmbeddedUrl http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox
 ctgA	17173	23150
+# EmbeddedUrl http://localhost:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox
+ctgA	17174	23151
