@@ -1,5 +1,11 @@
 # Changes
 
+## 2.1.1
+
+* Missing package in dependencies
+* `--throw-deprecations` can't be in `#!` line for linux
+  * Added programatic handling
+
 ## 2.1.0
 
 * Formalise to allow install via `npm`.
