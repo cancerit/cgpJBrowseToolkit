@@ -1,4 +1,4 @@
-#!/usr/bin/env node --throw-deprecation
+#!/usr/bin/env node
 
 /**
  * Copyright (c) 2016-2018 Genome Research Ltd.
@@ -30,6 +30,11 @@
  * identical to a statement that reads ‘Copyright (c) 2005, 2006, 2007, 2008,
  * 2009, 2010, 2011, 2012’."
  */
+
+process.on('unhandledRejection', (reason) => {
+  console.log('Unhandled Rejection at:', reason.stack || reason);
+  process.exit(1);
+})
 
 const VERSION = require('./version.js');
 
