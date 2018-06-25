@@ -250,7 +250,7 @@ function loadPw(options) {
       console.warn("Windows system, cannot check or correct file permissions of --passwdFile");
     }
     else {
-      var mode = new Mode(fs.statSync(options.passwdFile));
+      const mode = new Mode(fs.statSync(options.passwdFile));
       if(mode.group.read || mode.others.read) {
         console.warn("File provided to --passwdFile is readable by people other than you, changing permissions...");
         mode.owner.execute = false;
