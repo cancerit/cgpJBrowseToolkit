@@ -43,6 +43,7 @@ const path = require('path');
 const colon = encodeURIComponent(':');
 const fs = require('fs');
 const mkdirp = require('mkdirp');
+const Mode = require('stat-mode');
 
 /**
  * Process command line args and check validity
@@ -244,7 +245,26 @@ function headerHeight(options) {
  * @return {string|null} - Loaded password or null
  */
 function loadPw(options) {
-  if(options.passwdFile) return fs.readFileSync(options.passwdFile, "utf-8").replace(/\r?\n/g, '');
+  if(options.passwdFile) {
+    if(process.platform == 'win32') {
+      console.warn("Windows system, cannot check or correct file permissions of --passwdFile");
+    }
+    else {
+      const mode = new Mode(fs.statSync(options.passwdFile));
+      if(mode.group.read || mode.others.read) {
+        console.warn("File provided to --passwdFile is readable by people other than you, changing permissions...");
+        mode.owner.execute = false;
+        mode.group.read = false;
+        mode.group.write = false;
+        mode.group.execute = false;
+        mode.others.read = false;
+        mode.others.write = false;
+        mode.others.execute = false;
+        fs.chmodSync(options.passwdFile, mode.stat.mode);
+      }
+    }
+    return fs.readFileSync(options.passwdFile, "utf-8").replace(/\r?\n/g, '');
+  }
   return null;
 }
 
