@@ -1,5 +1,10 @@
 # Changes
 
+## 2.2.0
+
+* Warn and change file permissions if password file has permissive access.
+  * Display warning when Windows as can't do it.
+
 ## 2.1.1
 
 * Missing package in dependencies
