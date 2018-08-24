@@ -30,7 +30,7 @@ Requires a working installation of `node` and `npm`.
 Installation of `cgpJBrowseToolkit` can be achieved a number of ways but the
 simplest is:
 
-```
+```bash
 npm install github:cancerit/cgpJBrowseToolkit [-g]
 ```
 
@@ -51,7 +51,7 @@ Generate screenshots from your JBrowse instance using the URL and a BED file of 
 
 #### Usage
 
-```
+```bash
   $ js/jbrowse_rasterize.js --help
   Usage: jbrowse_rasterize [options]
 
@@ -107,31 +107,33 @@ Generate screenshots from your JBrowse instance using the URL and a BED file of 
 Usage is simple, set up the display with relevant tracks in the browser and provide the updated URL either:
 
 1. On the command line:
-```
-cat test/volvox.bed
-ctgA	17173	23150
-...
-$ jbrowse_rasterize.js \
---width 1200 \
---imgType png \
---locs test/volvox.bed \
---outdir somewhere \
---baseUrl \
-'http://jbrowse.org/code/JBrowse-1.12.4/?tracks=Transcript%2Cvolvox-sorted_bam_coverage&data=sample_data%2Fjson%2Fvolvox'
-```
 
-1. Or embed the URL in the bed file:
-```
-$ cat test/volvox_urlEmbedded.bed
-# EmbeddedUrl http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox
-ctgA	17173	23150
-...
-$ jbrowse_rasterize.js \
---width 1200 \
---imgType png \
---locs test/volvox_urlEmbedded.bed \
---outdir somewhere
-```
+    ```bash
+    cat test/volvox.bed
+    ctgA	17173	23150
+    ...
+    $ jbrowse_rasterize.js \
+    --width 1200 \
+    --imgType png \
+    --locs test/volvox.bed \
+    --outdir somewhere \
+    --baseUrl \
+    'http://jbrowse.org/code/JBrowse-1.12.4/?tracks=Transcript%2Cvolvox-sorted_bam_coverage&data=sample_data%2Fjson%2Fvolvox'
+    ```
+
+2. Or embed the URL in the bed file:
+
+    ```bash
+    $ cat test/volvox_urlEmbedded.bed
+    # EmbeddedUrl http://0.0.0.0:8080/?tracks=DNA%2CTranscript%2Cvolvox-sorted_bam_coverage%2Cvolvox-sorted_bam&data=sample_data%2Fjson%2Fvolvox
+    ctgA	17173	23150
+    ...
+    $ jbrowse_rasterize.js \
+    --width 1200 \
+    --imgType png \
+    --locs test/volvox_urlEmbedded.bed \
+    --outdir somewhere
+    ```
 
 ##### HTTP-BASIC authentication
 
@@ -187,7 +189,7 @@ is entirely up to you if you activate them.
 If you want tests, coverage reports and lint-ing to automatically execute before
 a commit you can activate them by running:
 
-```
+```bash
 git config core.hooksPath git-hooks
 ```
 
@@ -207,7 +209,7 @@ The version is found in `js/version.js` and `package.json` and should be kept in
 
 ## LICENCE
 
-```
+```none
 Copyright (c) 2016-2018 Genome Research Ltd.
 
 Author: CASM/Cancer IT <cgphelp@sanger.ac.uk>
