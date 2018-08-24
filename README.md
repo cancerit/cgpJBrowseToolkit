@@ -8,18 +8,18 @@ Contains various scripts and tools that work with or on [JBrowse][jbrowse] that 
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [Installation](#installation)
-- [Tools](#tools)
-	- [jbrowse_rasterize](#jbrowserasterize)
-		- [Usage](#usage)
-			- [HTTP-BASIC authentication](#http-basic-authentication)
-		- [Tested track types](#tested-track-types)
-		- [Known issues](#known-issues)
-- [Additional developer details](#additional-developer-details)
-	- [Editing README.md](#editing-readmemd)
-	- [Javascript Style](#javascript-style)
-	- [Version number](#version-number)
-- [LICENCE](#licence)
+* [Installation](#installation)
+* [Tools](#tools)
+  * [jbrowse_rasterize](#jbrowserasterize)
+    * [Usage](#usage)
+      * [HTTP-BASIC authentication](#http-basic-authentication)
+    * [Tested track types](#tested-track-types)
+* [Additional developer details](#additional-developer-details)
+  * [Editing README.md](#editing-readmemd)
+  * [Javascript Style](#javascript-style)
+  * [Pre commit hooks](#pre-commit-hooks)
+  * [Version number](#version-number)
+* [LICENCE](#licence)
 
 <!-- /TOC -->
 
@@ -39,6 +39,7 @@ Dependencies include:
 * [commander](https://www.npmjs.com/package/commander)
 * [puppeteer](https://www.npmjs.com/package/puppeteer)
 * [mkdirp](https://www.npmjs.com/package/mkdirp)
+* [password-prompt](https://www.npmjs.com/package/password-prompt)
 
 ## Tools
 
@@ -68,7 +69,7 @@ Generate screenshots from your JBrowse instance using the URL and a BED file of 
         --highlight          Highlight region (for short events)
     -q, --quality [n]        Image resolution [1,2,3] (default: 3)
     -z, --zoom [n]           Zoom factor (default: 1)
-    -p, --passwdFile [file]  User password for httpBasic
+    -p, --passwdFile [file]  User password for httpBasic, use `-` to prompt for value instead
     -t, --timeout [n]        For each track allow upto N sec. (default: 10)
     -v, --version            output the version number
     -h, --help               output usage information
@@ -135,9 +136,13 @@ $ jbrowse_rasterize.js \
 ##### HTTP-BASIC authentication
 
 To use this with a site secured with http_basic you need to provide your password for the
-authentication phase.
+authentication phase.  You have 2 options:
 
-Please **set permissions accordingly**, don't expose your password on a network drive.
+1. Specify `-p -` to be prompted for your password.
+2. Create a file with your password in plan-text.
+
+Please **set permissions accordingly**, don't expose your password on a network drive.  If permissions are not appropriate
+the script will update them accordingly.
 
 Other:
 
@@ -171,7 +176,29 @@ npm install eslint
 Validate with:
 
 ```bash
-eslint js/*.js
+npm run eslint
+```
+
+### Pre commit hooks
+
+This project uses git pre-commit hooks.  As these will execute on your system it
+is entirely up to you if you activate them.
+
+If you want tests, coverage reports and lint-ing to automatically execute before
+a commit you can activate them by running:
+
+```
+git config core.hooksPath git-hooks
+```
+
+Only a test failure will block a commit, lint-ing is not enforced (but please consider
+following the guidance).
+
+You can run the same checks manually without a commit by executing the following
+in the base of the clone:
+
+```bash
+./git-hooks/pre-commit.sh
 ```
 
 ### Version number

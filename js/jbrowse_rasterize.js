@@ -64,7 +64,7 @@ function cliChecks() {
     .option('    --highlight', 'Highlight region (for short events)', false)
     .option('-q, --quality [n]', 'Image resolution [1,2,3]', '3')
     .option('-z, --zoom [n]', 'Zoom factor', 1)
-    .option('-p, --passwdFile [file]', 'User password for httpBasic')
+    .option('-p, --passwdFile [file]', 'User password for httpBasic, use `-` to prompt for value instead')
     .option('-t, --timeout [n]', 'For each track allow upto N sec.', 10)
     .version(VERSION, '-v, --version')
     .on('--help', function() {
@@ -246,7 +246,12 @@ function headerHeight(options) {
  */
 function loadPw(options) {
   if(options.passwdFile) {
-    if(process.platform == 'win32') {
+    if(options.passwdFile == '-') {
+      let prompt = require('password-prompt');
+      let password = prompt('password: ', { method: 'hide' });
+      return password;
+    }
+    else if(process.platform == 'win32') {
       console.warn("Windows system, cannot check or correct file permissions of --passwdFile");
     }
     else {
@@ -272,9 +277,9 @@ function main() {
   const program = cliChecks();
   const locations = loadLocs(program);
   const minHeight = headerHeight(program);
-  const passwd = loadPw(program);
 
   (async () => {
+    let passwd = await loadPw(program);
     const browser = await puppeteer.launch({ignoreHTTPSErrors: true, headless: true});
     const page = await browser.newPage();
     await page.setCacheEnabled(true);
