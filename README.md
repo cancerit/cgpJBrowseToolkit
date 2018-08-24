@@ -200,7 +200,7 @@ You can run the same checks manually without a commit by executing the following
 in the base of the clone:
 
 ```bash
-./git-hooks/pre-commit.sh
+./git-hooks/pre-commit
 ```
 
 ### Version number
