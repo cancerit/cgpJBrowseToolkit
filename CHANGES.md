@@ -1,5 +1,9 @@
 # Changes
 
+## 2.2.1
+
+* URL cleanup patterns corrected
+
 ## 2.2.0
 
 * Warn and change file permissions if password file has permissive access.
