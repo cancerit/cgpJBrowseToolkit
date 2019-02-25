@@ -144,12 +144,12 @@ function throwErr(message) {
 function urlCleaning(options, url, subdir) {
   // Handle standard cleaning of the URL
   let address = url
-    .replace(/loc=[^&]?/, '')
-    .replace(/&tracklist=[^&]?/, '')
-    .replace(/&nav=[^&]?/, '')
-    .replace(/&fullviewlink=[^&]?/, '')
-    .replace(/&highres=[^&]?/, '')
-    .replace(/&highlight=[^&]?/, '');
+    .replace(/loc=[^&]*/, '')
+    .replace(/&tracklist=[^&]*/, '')
+    .replace(/&nav=[^&]*/, '')
+    .replace(/&fullviewlink=[^&]*/, '')
+    .replace(/&highres=[^&]*/, '')
+    .replace(/&highlight=[^&]*/, '');
 
   // handle sometimes flaky 0.0.0.0 loopback
   address = address.replace(/[/]{2}0\.0\.0\.0/, '//localhost');
