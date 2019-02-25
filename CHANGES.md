@@ -1,5 +1,9 @@
 # Changes
 
+## 2.2.2
+
+* forgot to update package-lock.json - reports wrong version when this occurs
+
 ## 2.2.1
 
 * URL cleanup patterns corrected
