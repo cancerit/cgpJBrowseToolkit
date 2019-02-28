@@ -8,18 +8,17 @@ Contains various scripts and tools that work with or on [JBrowse][jbrowse] that 
 
 <!-- TOC depthFrom:2 depthTo:6 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [Installation](#installation)
-- [Tools](#tools)
-	- [jbrowse_rasterize](#jbrowserasterize)
-		- [Usage](#usage)
-			- [HTTP-BASIC authentication](#http-basic-authentication)
-		- [Tested track types](#tested-track-types)
-		- [Known issues](#known-issues)
-- [Additional developer details](#additional-developer-details)
-	- [Editing README.md](#editing-readmemd)
-	- [Javascript Style](#javascript-style)
-	- [Version number](#version-number)
-- [LICENCE](#licence)
+* [Installation](#installation)
+* [Tools](#tools)
+  * [jbrowse_rasterize](#jbrowserasterize)
+    * [Usage](#usage)
+      * [HTTP-BASIC authentication](#http-basic-authentication)
+    * [Tested track types](#tested-track-types)
+* [Additional developer details](#additional-developer-details)
+  * [Editing README.md](#editing-readmemd)
+  * [Javascript Style](#javascript-style)
+  * [Version number](#version-number)
+* [LICENCE](#licence)
 
 <!-- /TOC -->
 
@@ -149,7 +148,7 @@ Other:
 We are not aware of any track types which do not render.  Some minor rendering issues occur in the
 navigation/ruler areas for PDF.
 
-Most recently confirmed working with JBrowse 1.12.4.
+Most recently confirmed working with JBrowse 1.16.1.
 
 Please report any problems on the [GitHub issue tracker][gh-issues].
 
