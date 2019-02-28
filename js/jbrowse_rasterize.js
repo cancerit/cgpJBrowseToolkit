@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Copyright (c) 2016-2018 Genome Research Ltd.
+ * Copyright (c) 2016-2019 Genome Research Ltd.
  *
  * Author: CASM/Cancer IT <cgphelp@sanger.ac.uk>
  *
@@ -295,16 +295,22 @@ function main() {
         });
         continue;
       }
+
       let fullAddress = address+'&loc='+loc.urlElement;
       process.stdout.write('Processing: '+fullAddress);
       const started = Date.now();
+      const finalPath = path.join(outloc, loc.fileElement+'.'+program.imgType);
+      if(fs.existsSync(finalPath) && fs.statSync(finalPath).size > 0) {
+        console.info("\n\tImage exists, skipping");
+        continue locLoop;
+      }
 
       let rendered = false;
       let tries = 1;
       while(!rendered) {
         try {
-          // need to reset each time
-          await page.setViewport({width: program.width, height: 2000});
+          // need to reset each time, height needs to be huge to handle some types of data
+          await page.setViewport({width: program.width, height: 15000});
           const response = await page.goto(
             fullAddress, {
               timeout: timeout,
@@ -337,6 +343,7 @@ function main() {
           continue locLoop;
         }
         rendered=true;
+        await page.waitFor(500); // allow time for draw
       }
 
       let trackHeight = minHeight;
@@ -352,7 +359,7 @@ function main() {
         trackHeight += bb.height;
       }
       await page.setViewport({width: program.width, height: trackHeight, deviceScaleFactor: program.zoom});
-      const finalPath = path.join(outloc, loc.fileElement+'.'+program.imgType);
+      await page.waitFor(trackHeight); // allow time for draw
       if(program.imgType === 'pdf') {
         await page.pdf({path: finalPath, scale: program.zoom, width: parseInt(program.width * program.zoom), height: parseInt(trackHeight * program.zoom)})
       }
