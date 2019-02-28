@@ -1,5 +1,10 @@
 # Changes
 
+## 2.3.0
+
+* Automatically skip over images already generated (with size>0)
+* Increase initial viewport to ensure images aren't truncated
+
 ## 2.2.2
 
 * forgot to update package-lock.json - reports wrong version when this occurs
