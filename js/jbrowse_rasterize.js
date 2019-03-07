@@ -160,7 +160,7 @@ function urlCleaning(options, url, subdir) {
     address += '&nav=0';
   }
   if(options.highlight) {
-    fullAddress += '&highlight='+loc.urlElement;
+    address += '&highlight='+loc.urlElement;
   }
   // cleanup any multiples of &&
   address = address.replace(/[&]+/g,'&');

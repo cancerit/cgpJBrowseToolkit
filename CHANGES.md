@@ -1,5 +1,9 @@
 # Changes
 
+## 2.3.1
+
+* Fixes `--highlight` option.
+
 ## 2.3.0
 
 * Automatically skip over images already generated (with size>0)
