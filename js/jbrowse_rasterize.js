@@ -205,11 +205,14 @@ function loadLocs(options) {
     }
 
     const elements = rawLoc.split(/\t/);
-    if(elements.length !== 3) continue;
+    if(elements.length < 3) {
+      console.warn('Skipping: line, neither comment or BED format: ' + rawLoc);
+      continue;
+    }
     let start = parseInt(elements[1]);
     const end = parseInt(elements[2]);
     if(start >= end) {
-      console.warn('Skipping: bed location malformed: ' + rawLoc);
+      console.warn('Skipping: line, bed location malformed: ' + rawLoc);
       continue;
     }
     start += 1;
