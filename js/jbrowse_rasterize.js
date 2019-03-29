@@ -120,7 +120,7 @@ const bedHelp = `
       ...
 
     Comment/URL separator lines can be space or tab separated elements.
-    BED formatted lines must be tab separated and only have 3 elements.
+    BED formatted lines must be tab separated.
 `
 
 /**
