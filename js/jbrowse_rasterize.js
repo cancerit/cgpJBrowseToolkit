@@ -159,9 +159,6 @@ function urlCleaning(options, url, subdir) {
   if(options.navOff) { // optionally turn of the navigation tools
     address += '&nav=0';
   }
-  if(options.highlight) {
-    address += '&highlight='+loc.urlElement;
-  }
   // cleanup any multiples of &&
   address = address.replace(/[&]+/g,'&');
   const tracks = address.match(/tracks=[^&]+/)[0].split(/%2C/g);
@@ -219,7 +216,8 @@ function loadLocs(options) {
     locations.push({
       urlElement: elements[0] + colon + start + '..' + end,
       realElement: elements[0] + ':' + start + '..' + end,
-      fileElement: elements[0] + '_' + start + '-' + end
+      fileElement: elements[0] + '_' + start + '-' + end,
+      highlight: options.highlight
     });
   }
   return locations;
@@ -300,6 +298,8 @@ function main() {
       }
 
       let fullAddress = address+'&loc='+loc.urlElement;
+      // add highlight
+      if(loc.highlight) fullAddress = fullAddress+'&highlight='+loc.urlElement;
       process.stdout.write('Processing: '+fullAddress);
       const started = Date.now();
       const finalPath = path.join(outloc, loc.fileElement+'.'+program.imgType);
