@@ -1,5 +1,10 @@
 # Changes
 
+## 2.3.2
+
+* Actually fixes the highlight bug #18
+* Relaxes input file to accept BED with more than just required fields (#19)
+
 ## 2.3.1
 
 * Fixes `--highlight` option.

@@ -120,7 +120,7 @@ const bedHelp = `
       ...
 
     Comment/URL separator lines can be space or tab separated elements.
-    BED formatted lines must be tab separated and only have 3 elements.
+    BED formatted lines must be tab separated.
 `
 
 /**
@@ -158,9 +158,6 @@ function urlCleaning(options, url, subdir) {
   address += '&tracklist=0&fullviewlink=0&highres='+options.quality;
   if(options.navOff) { // optionally turn of the navigation tools
     address += '&nav=0';
-  }
-  if(options.highlight) {
-    address += '&highlight='+loc.urlElement;
   }
   // cleanup any multiples of &&
   address = address.replace(/[&]+/g,'&');
@@ -205,18 +202,22 @@ function loadLocs(options) {
     }
 
     const elements = rawLoc.split(/\t/);
-    if(elements.length !== 3) continue;
+    if(elements.length < 3) {
+      console.warn('Skipping: line, neither comment or BED format: ' + rawLoc);
+      continue;
+    }
     let start = parseInt(elements[1]);
     const end = parseInt(elements[2]);
     if(start >= end) {
-      console.warn('Skipping: bed location malformed: ' + rawLoc);
+      console.warn('Skipping: line, bed location malformed: ' + rawLoc);
       continue;
     }
     start += 1;
     locations.push({
       urlElement: elements[0] + colon + start + '..' + end,
       realElement: elements[0] + ':' + start + '..' + end,
-      fileElement: elements[0] + '_' + start + '-' + end
+      fileElement: elements[0] + '_' + start + '-' + end,
+      highlight: options.highlight
     });
   }
   return locations;
@@ -297,6 +298,8 @@ function main() {
       }
 
       let fullAddress = address+'&loc='+loc.urlElement;
+      // add highlight
+      if(loc.highlight) fullAddress = fullAddress+'&highlight='+loc.urlElement;
       process.stdout.write('Processing: '+fullAddress);
       const started = Date.now();
       const finalPath = path.join(outloc, loc.fileElement+'.'+program.imgType);
