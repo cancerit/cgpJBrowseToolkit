@@ -64,7 +64,7 @@ function cliChecks() {
     .option('    --highlight', 'Highlight region (for short events)', false)
     .option('-q, --quality [n]', 'Image resolution [1,2,3]', '3')
     .option('-z, --zoom [n]', 'Zoom factor', 1)
-    .option('-p, --passwdFile [file]', 'User password for httpBasic')
+    .option('-p, --passwdFile [file]', 'User username and password for httpBasic')
     .option('-t, --timeout [n]', 'For each track allow upto N sec.', 10)
     .version(VERSION, '-v, --version')
     .on('--help', function() {
@@ -264,22 +264,32 @@ function loadPw(options) {
         fs.chmodSync(options.passwdFile, mode.stat.mode);
       }
     }
-    return fs.readFileSync(options.passwdFile, "utf-8").replace(/\r?\n/g, '');
+    // return fs.readFileSync(options.passwdFile, "utf-8").replace(/\r?\n/g, '');
+    const lines = fs.readFileSync(options.passwdFile, "utf-8").trim().split('\n');
+    if(lines.length != 2){
+      console.warn("File provided to --passwdFile does not have two lines. Please update the file so the first line is your username and the second line your password");
+    }
+    return [lines[0], lines[1]]
   }
-  return null;
+  return [null, null]
 }
 
 function main() {
   const program = cliChecks();
   const locations = loadLocs(program);
   const minHeight = headerHeight(program);
-  const passwd = loadPw(program);
+  const [username, passwd] = loadPw(program);
 
   (async () => {
-    const browser = await puppeteer.launch({ignoreHTTPSErrors: true, headless: true});
+    const browser = await puppeteer.launch(
+      {
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--single-process'],
+        ignoreHTTPSErrors: true
+      }
+    );
     const page = await browser.newPage();
     await page.setCacheEnabled(true);
-    if(passwd) await page.authenticate({username: process.env.USER, password: passwd});
+    if(passwd) await page.authenticate({username: username, password: passwd});
 
     let {address, timeout, outloc} = ['', 0, ''];
 
